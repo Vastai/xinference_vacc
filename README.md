@@ -1,3 +1,13 @@
+<div id=top align="center">
+
+![logo](./images/index/logo.png)
+[![License](https://img.shields.io/badge/license-Apache_2.0-yellow)](LICENSE)
+[![company](https://img.shields.io/badge/vastaitech.com-blue)](https://www.vastaitech.com/)
+
+
+</div>
+
+---
 # xinference on vacc
 # 简介
 
