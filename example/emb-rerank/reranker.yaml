@@ -1,0 +1,58 @@
+services:
+  vacc-reranker:
+    image: ${IMAGE}
+    container_name: vacc-reranker
+    restart: unless-stopped  # 更智能的重启策略
+    shm_size: 256g
+    privileged: true
+    ports:
+      - "9995:9995"
+    cap_add:
+      - SYS_NICE
+    environment:
+      - model_path=mod
+      - rerank_model_name=${rerank_model_name}
+      - rerank_GPUs=${rerank_GPUs}
+      - rerank_instance_nums=${rerank_instance_nums}
+      # 稳定性关键配置
+      - VLLM_ENGINE_ITERATION_TIMEOUT_S=86400 # vLLM引擎超时(24小时)
+      - XINFERENCE_SSE_PING_ATTEMPTS_SECONDS=864000
+      - VLLM_NO_USAGE_TIMEOUT=0               # 禁用无请求超时
+
+    volumes:
+      - ${RERANK_DATA_DIR}:/rerank_weights
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://0.0.0.0:9995/status || exit 1"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        # 防止SIGTERM导致退出
+        trap : TERM INT
+        unset VACC_VISIBLE_DEVICES
+        source /opt/vastai/vaststream/set_env.sh
+
+        cd /test/vsx 
+
+        echo 'VACC_VISIBLE_DEVICES=$$rerank_GPUs xinference-local --host 0.0.0.0 --port 9995' > xinf_local.sh
+
+        bash xinf_local.sh &
+
+        # 等待服务就绪
+        while ! curl -s http://127.0.0.1:9995 >/dev/null; do
+          sleep 2
+        done
+
+        echo '{
+          "model_name": "'$$rerank_model_name'",
+          "model_uid": "'$$rerank_model_name'",
+          "language": ["en"],
+          "model_uri": "/rerank_weights/'$${model_path}'"
+        }' > register_rerank.json
+
+        python test_client.py --url http://127.0.0.1:9995 --rerank --model-config register_rerank.json --n_gpu 1 --instance-nums $$rerank_instance_nums
+
+        tail -f /dev/null 

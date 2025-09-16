@@ -1,0 +1,63 @@
+services:
+  ds31-mtp-xinference:
+    image: ${IMAGE}
+    container_name: ds31-mtp-xinference
+    restart: unless-stopped  # 更智能的重启策略
+    shm_size: 256g
+    privileged: true
+    network_mode: host
+    cap_add:
+      - SYS_NICE
+    environment:
+      - model_name=${model_name}
+      - model_directory=${model_directory}
+      - VLLM_ENGINE_ITERATION_TIMEOUT_S=864000 # vLLM引擎超时(24小时)
+      - XINFERENCE_SSE_PING_ATTEMPTS_SECONDS=864000
+      - VLLM_NO_USAGE_TIMEOUT=0               # 禁用无请求超时
+      
+    volumes:
+      - ${HOST_DATA_DIR}:/weights
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://10.24.73.25:9997/status || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        # 防止SIGTERM导致退出
+        trap : TERM INT
+        cd /test/ds3
+
+        echo "=================== start run supervisor ========================="
+        xinference-supervisor -H 10.24.73.25 -p 9997 &
+        until curl -s http://10.24.73.25:9997/status; do
+          sleep 5
+        done
+
+        echo "==================== STARTING WORKERS ========================="
+        
+        echo "==================== STARTING WORKERS 1 ========================="
+        VACC_VISIBLE_DEVICES='0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31'  xinference-worker -H 10.24.73.25 -e http://10.24.73.25:9997 &
+        sleep 10
+
+        echo "==================== STARTING WORKERS 2========================="
+        VACC_VISIBLE_DEVICES='32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63'  xinference-worker -H 10.24.73.25 -e http://10.24.73.25:9997 &
+        sleep 10
+
+
+        # 启动模型服务
+        if ! command -v xinference &> /dev/null; then
+            echo "Error: xinference command not found. Please install Xinference first."
+            exit 1
+        fi
+
+        # 输出汇总信息
+        echo "=================================================================="
+        echo "Supervisor: http://10.24.73.25:9997"
+        echo "Model Name: $$model_name (671B)"
+        echo "Quantization: fp8"
+        echo "=================================================================="
+
+        tail -f /dev/null 

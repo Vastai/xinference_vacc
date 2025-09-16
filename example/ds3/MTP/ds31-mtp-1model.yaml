@@ -1,0 +1,87 @@
+services:
+  ds31-1model-mtp-xinference:
+    image: ${IMAGE}
+    container_name: ds31-1model-mtp-xinference
+    restart: unless-stopped  # 更智能的重启策略
+    shm_size: 256g
+    privileged: true
+    ports:
+      - "9997:9997"
+    cap_add:
+      - SYS_NICE
+    environment:
+      - model_name=${model_name}
+      - model_directory=${model_directory}
+      - VLLM_ENGINE_ITERATION_TIMEOUT_S=864000 # vLLM引擎超时(24小时)
+      - XINFERENCE_SSE_PING_ATTEMPTS_SECONDS=864000
+      - VLLM_NO_USAGE_TIMEOUT=0               # 禁用无请求超时
+      - XINFERENCE_HEARTBEAT_INTERVAL=60      # 心跳检测间隔(秒)
+      - XINFERENCE_WORKER_TIMEOUT=864000       # Worker无响应超时(24小时)
+      - XINFERENCE_SCHEDULER_POLICY=least_loaded  # 选择最小负载worker调度策略
+      - XINFERENCE_ADAPTIVE_INTERVAL=2
+      - XINFERENCE_REPLICA_BALANCE=true          # 启用副本均衡
+      - XINFERENCE_WORKER_PERSISTENT=true
+      - XINFERENCE_LOAD_METRIC=gpu_util  # 按GPU利用率而非请求数判断负载
+      - XINFERENCE_LOAD_THRESHOLD=90     # 超过90%利用率视为高负载
+       # 显存优化（防止单实例OOM）
+      - VLLM_LOGGING_LEVEL=DEBUG             
+      
+    volumes:
+      - ${HOST_DATA_DIR}:/weights
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://0.0.0.0:9997/status || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        # 防止SIGTERM导致退出
+        trap : TERM INT
+        cd /test/ds3
+
+        echo "=================== start run supervisor ========================="
+        xinference-supervisor -H 0.0.0.0 -p 9997 &
+        until curl -s http://0.0.0.0:9997/status; do
+          sleep 5
+        done
+
+        echo "==================== STARTING WORKERS ========================="
+        
+        echo "==================== STARTING WORKERS 1 ========================="
+        VACC_VISIBLE_DEVICES='0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31'  xinference-worker -H 0.0.0.0 -e http://0.0.0.0:9997 &
+        sleep 10
+
+        # 启动模型服务
+        if ! command -v xinference &> /dev/null; then
+            echo "Error: xinference command not found. Please install Xinference first."
+            exit 1
+        fi
+
+        # 启动两个模型副本，共享UID, 可以通过同一个UID去分发调度请求
+        echo "==================== Launching Model Replica 1 ===================="
+
+        echo '{
+          "model_path": "/weights/'$${model_directory}'",
+          "additional_params": {
+            "tensor_parallel_size": 32,
+            "max_model_len": 65536,
+            "speculative_config": {
+              "method": "deepseek_mtp",
+              "num_speculative_tokens": 1
+            },
+            "enforce_eager": true
+          }
+        }' > register_ds3.json
+
+        python launch_ds3_v3.py --url http://127.0.0.1:9997 --model-config register_ds3.json --n_gpu 32 --instance-nums 1
+
+        # 输出汇总信息
+        echo "=================================================================="
+        echo "Supervisor: http://0.0.0.0:9997"
+        echo "Model Name: $$model_name (671B)"
+        echo "Quantization: fp8"
+        echo "=================================================================="
+
+        tail -f /dev/null 
