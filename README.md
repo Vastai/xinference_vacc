@@ -87,6 +87,48 @@ example
 ./install_docker_compose.sh
 ```
 
+**离线安装 Docker。** 
+
+如果已安装，可跳过该步骤。
+
+```shell
+# 解压
+tar -xzvf docker-28.0.6.tgz
+
+# 复制二进制文件到系统路径
+sudo cp docker/* /usr/bin/
+
+# 创建 systemd 服务文件
+sudo vi /etc/systemd/system/docker.service
+[Unit]
+Description=Docker Application Container Engine
+Documentation=https://docs.docker.com
+After=network-online.target firewalld.service
+Wants=network-online.target
+
+[Service]
+Type=notify
+ExecStart=/usr/bin/dockerd
+ExecReload=/bin/kill -s HUP $MAINPID
+LimitNOFILE=infinity
+LimitNPROC=infinity
+LimitCORE=infinity
+TasksMax=infinity
+TimeoutStartSec=0
+Delegate=yes
+KillMode=process
+Restart=on-failure
+StartLimitBurst=3
+StartLimitInterval=60s
+
+[Install]
+WantedBy=multi-user.target
+然后启动服务
+sudo systemctl daemon-reload
+sudo systemctl start docker
+sudo systemctl enable docker
+```
+
 # 使用说明
 
 本章节主要描述如何通过 xinference_vacc 启动模型服务。
