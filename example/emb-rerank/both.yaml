@@ -79,5 +79,5 @@ services:
         }' > register_rerank.json
 
         python test_client.py --url http://127.0.0.1:9999 --rerank --model-config register_rerank.json --n_gpu 1 --instance-nums $$rerank_instance_nums
-        
+        echo '模型加载完成'
         tail -f /dev/null 

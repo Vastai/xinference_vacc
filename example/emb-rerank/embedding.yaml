@@ -6,7 +6,7 @@ services:
     shm_size: 256g
     privileged: true
     ports:
-      - "9996:9996"
+      - "9998:9998"
     cap_add:
       - SYS_NICE
     environment:
@@ -22,7 +22,7 @@ services:
     volumes:
       - ${EMB_DATA_DIR}:/embedding_weights
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://0.0.0.0:9996/status || exit 1"]
+      test: ["CMD-SHELL", "curl -sf http://0.0.0.0:9998/status || exit 1"]
       interval: 30s
       timeout: 20s
       retries: 3
@@ -37,12 +37,12 @@ services:
 
         cd /test/vsx 
 
-        echo 'VACC_VISIBLE_DEVICES=$$embedding_GPUs xinference-local --host 0.0.0.0 --port 9996' > xinf_local.sh
+        echo 'VACC_VISIBLE_DEVICES=$$embedding_GPUs xinference-local --host 0.0.0.0 --port 9998' > xinf_local.sh
 
         bash xinf_local.sh &
 
         # 等待服务就绪
-        while ! curl -s http://127.0.0.1:9996 >/dev/null; do
+        while ! curl -s http://127.0.0.1:9998 >/dev/null; do
           sleep 2
         done
         echo '{
@@ -54,6 +54,6 @@ services:
           "model_uri": "/embedding_weights/'$${model_path}'"
         }' > register_emb.json
 
-        python test_client.py --url http://127.0.0.1:9996 --embedding --model-config register_emb.json --n_gpu 1 --instance-nums $$embedding_instance_nums 
-
+        python test_client.py --url http://127.0.0.1:9998 --embedding --model-config register_emb.json --n_gpu 1 --instance-nums $$embedding_instance_nums 
+        echo '模型加载完成'
         tail -f /dev/null 
