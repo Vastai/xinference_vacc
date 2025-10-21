@@ -1,10 +1,9 @@
-FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:AI3.0_SP9_0811
+FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:AI3.1_POC_1013
 
 # 设置工作目录
 WORKDIR /test
-
 # 将当前目录下的所有wheel文件拷贝到容器的/test目录下, 假设当前目录只有vaststreamx/xinference_vacc 的轮子包
-RUN wget -O ai-v3.0.0-20250811-1066-linux-x86_64-sdk2-python3.12.bin  http://devops.vastai.com/kapis/artifact.kubesphere.io/v1alpha1/artifact?artifactid=6544 --no-check-certificate
+RUN wget -O ai-v3.1.0-20251013-1914-linux-x86_64-sdk2-python3.12.bin  http://devops.vastai.com/kapis/artifact.kubesphere.io/v1alpha1/artifact?artifactid=6544 --no-check-certificate
 RUN wget -O vaststreamx-2.8.8+2eebe29-1ubuntu1-cp312-cp312-linux_x86_64.whl  http://devops.vastai.com/kapis/artifact.kubesphere.io/v1alpha1/artifact?artifactid=7223 --no-check-certificate
 COPY *.whl /test/
 
@@ -12,8 +11,8 @@ COPY *.whl /test/
 RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 # 安装指定的vaststreamx wheel包
 RUN pip install /test/vaststreamx*.whl
-RUN chmod +x /test/ai-v3.0.0-20250811-1066-linux-x86_64-sdk2-python3.12.bin
-RUN /test/ai-v3.0.0-20250811-1066-linux-x86_64-sdk2-python3.12.bin
+RUN chmod +x /test/ai*.bin
+RUN /test/ai*.bin
 RUN pip install xinference==1.5.1
 RUN pip install /test/xinference_vacc-1.5.1-py3-none-any.whl
 
