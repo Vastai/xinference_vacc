@@ -71,10 +71,13 @@ class EmbeddingModel:
         # 存储所有 ModelInfo 实例的列表, 状态字典
         self.modelInfo_list = []
         self.model_info_dict = {}
+
         ##加载三件套
         if self._model_path.endswith("mod"):
             self.vastai_emb = True
-            self._model_tokenizer = self._model_path[:-3] + "512/tokenizer"
+            self.root_dir = self._model_path[:-3]
+            subdirs_list = self._find_model_subdirs()
+            self._model_tokenizer = self.root_dir + subdirs_list[0]+"/tokenizer"
             logger.info(f"Tokenizer path: {self._model_tokenizer}")
             # 加载一次 tokenizer
             try:
@@ -83,8 +86,6 @@ class EmbeddingModel:
                 logger.error(f"Failed to load tokenizer: {e}")
                 self.vastai_tokenizer = None
         ##如果有子目录 512/1024/2048/4096/8192
-        self.root_dir = self._model_path[:-3]
-        subdirs_list = self._find_model_subdirs()
         for i in subdirs_list:
             # 如果有子目录
             subdir_modpath = os.path.join(self.root_dir, i, "mod")
