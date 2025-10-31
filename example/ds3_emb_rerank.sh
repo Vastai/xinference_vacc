@@ -72,8 +72,8 @@ if [[ "$MODEL_NAME" != "ds31" && "$MODEL_NAME" != "dsr1" ]]; then
 fi
 
 # 定义模型目录路径和配置文件
-MODEL_DIR="ds3"
-COMPOSE_FILE="$MTP_MODE/${MODEL_NAME}-1model.yaml"
+MODEL_DIR="ds3/$MTP_MODE"
+COMPOSE_FILE="${MODEL_NAME}-1model.yaml"
 
 echo "=== 准备启动大模型服务 ==="
 echo "配置: $MTP_MODE, 模型: $MODEL_NAME"
