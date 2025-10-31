@@ -143,8 +143,8 @@ example/ds3 的每个子目录下，都有.env 变量
 # 模型目录的路径
 HOST_DATA_DIR=/FS03/wyl_data/workspace/weights
 # 镜像设置
-IMAGE=harbor.vastaitech.com/ai_deliver/xinference_vacc_151:AI3.1_POC_1013
-## 如果是arm 平台，公版的镜像是 harbor.vastaitech.com/ai_deliver/xinference_vacc_151:AI3.1_POC_1013_arm
+IMAGE=harbor.vastaitech.com/ai_deliver/xinference_vacc_151:AI3.1_POC_1030
+## 如果是arm 平台，公版的镜像是 harbor.vastaitech.com/ai_deliver/xinference_vacc_151:AI3.1_POC_1030_arm
 # 参数设置
 model_name=deepseek-v3
 model_directory=DeepSeek-V3.1
@@ -269,8 +269,8 @@ example/qwen3 的每个子目录下，都有.env 变量
 # 模型目录的路径
 HOST_DATA_DIR=/FS03/wyl_data/workspace/weights
 # 镜像设置
-IMAGE=harbor.vastaitech.com/ai_deliver/xinference_vacc_151:AI3.1_POC_1013
-## 如果是arm 平台，公版的镜像是 harbor.vastaitech.com/ai_deliver/xinference_vacc_151:AI3.1_POC_1013_arm
+IMAGE=harbor.vastaitech.com/ai_deliver/xinference_vacc_151:AI3.1_POC_1030
+## 如果是arm 平台，公版的镜像是 harbor.vastaitech.com/ai_deliver/xinference_vacc_151:AI3.1_POC_1030_arm
 # 参数设置
 model_name=qwen3
 model_directory=Qwen3-30B-A3B-FP8
@@ -334,8 +334,8 @@ example/qwen3 的每个子目录下，都有.env 变量
 EMB_DATA_DIR=/home/tonyguo/emb_models/bge-m3-vacc
 RERANK_DATA_DIR=/home/tonyguo/emb_models/bge-reranker-v2-m3-vacc
 # 镜像设置
-IMAGE=harbor.vastaitech.com/ai_deliver/xinference_vacc_151:AI3.1_POC_1013
-## 如果是arm 平台，公版的镜像是 harbor.vastaitech.com/ai_deliver/xinference_vacc_151:AI3.1_POC_1013_arm
+IMAGE=harbor.vastaitech.com/ai_deliver/xinference_vacc_151:AI3.1_POC_1030
+## 如果是arm 平台，公版的镜像是 harbor.vastaitech.com/ai_deliver/xinference_vacc_151:AI3.1_POC_1030_arm
 # 参数设置
 embedding_model_name=emb_vacc
 embedding_GPUs=0,1
