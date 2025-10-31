@@ -1,4 +1,4 @@
-FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:AI3.1_POC_1013_arm
+FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:AI3.1.1_GR_1031_arm
 
 # 设置工作目录
 WORKDIR /test
