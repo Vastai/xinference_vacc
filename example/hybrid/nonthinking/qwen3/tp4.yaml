@@ -1,0 +1,184 @@
+services:
+  qwen3-tp4-xinference:
+    image: ${IMAGE}
+    container_name: qwen3-tp4-xinference
+    restart: unless-stopped  # 更智能的重启策略
+    shm_size: 256g
+    privileged: true
+    ports:
+      - "9997:9997"
+    cap_add:
+      - SYS_NICE
+    environment:
+      - model_name=${model_name}
+      - model_directory=${model_directory}
+      # 稳定性关键配置
+      - VLLM_ENGINE_ITERATION_TIMEOUT_S=864000 # vLLM引擎超时(24小时)
+      - XINFERENCE_SSE_PING_ATTEMPTS_SECONDS=864000
+      - XINFERENCE_HEARTBEAT_INTERVAL=60      # 心跳检测间隔(秒)
+      - XINFERENCE_WORKER_TIMEOUT=864000       # Worker无响应超时(24小时)
+      - XINFERENCE_SCHEDULER_POLICY=least_loaded  # 选择最小负载worker调度策略
+      - XINFERENCE_ADAPTIVE_INTERVAL=2
+      - XINFERENCE_REPLICA_BALANCE=true          # 启用副本均衡
+      - XINFERENCE_WORKER_PERSISTENT=true
+      - XINFERENCE_LOAD_METRIC=gpu_util  # 按GPU利用率而非请求数判断负载
+      - XINFERENCE_LOAD_THRESHOLD=90     # 超过90%利用率视为高负载
+       # 显存优化（防止单实例OOM）
+      - VLLM_LOGGING_LEVEL=DEBUG    
+      - GPU_PAIRS=${GPU_PAIRS}                     # 用到的GPU 列表 4= tp2 *instance_nums
+      - instance_nums=${instance_nums}
+    volumes:
+      - ${HOST_DATA_DIR}:/weights
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://0.0.0.0:9997/status || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        # 防止SIGTERM导致退出
+        trap : TERM INT
+        cd /test/qwen3
+
+        echo "=================== start run supervisor ========================="
+        xinference-supervisor -H 0.0.0.0 -p 9997 &
+        until curl -s http://0.0.0.0:9997/status; do
+          sleep 5
+        done
+
+        echo "==================== STARTING WORKERS ========================="
+        
+        # 按顺序两两分组处理GPU_PAIRS
+        IFS=',' read -ra gpu_list <<< "$$GPU_PAIRS"
+        gpu_count=$${#gpu_list[@]}
+        
+        for ((i=0; i<gpu_count; i+=4)); do
+          if ((i+1 < gpu_count)); then
+            gpu_pair="$${gpu_list[i]},$${gpu_list[i+1]}, $${gpu_list[i+2]},$${gpu_list[i+3]}"
+            echo "Starting worker on GPUs: $$gpu_pair"
+        
+            VACC_VISIBLE_DEVICES="$$gpu_pair" \
+            xinference-worker -H 0.0.0.0 -e http://0.0.0.0:9997 &
+            
+            sleep 10  # 保持10秒间隔
+          else
+            echo "WARNING: GPU $${gpu_list[i]} has no pair and will be skipped"
+          fi
+        done
+
+
+        # 启动模型服务
+        if ! command -v xinference &> /dev/null; then
+            echo "Error: xinference command not found. Please install Xinference first."
+            exit 1
+        fi
+
+        # 启动两个模型副本，共享UID, 可以通过同一个UID去分发调度请求
+        echo "==================== Launching Model Replica 1 ===================="
+
+        echo '{
+          "model_path": "/weights/'$${model_directory}'",
+          "additional_params": {
+            "tensor_parallel_size": 4,
+            "max_model_len": 65536,
+            "enforce_eager": true,
+            "enable_reasoning": true,
+            "reasoning_parser": "deepseek_r1"
+          }
+        }' > register_qwen3.json
+
+        python launch_qwen3.py --url http://127.0.0.1:9997 --model-config register_qwen3.json --n_gpu 4 --instance-nums $$instance_nums
+
+        # 输出汇总信息
+        echo "=================================================================="
+        echo "Supervisor: http://0.0.0.0:9997"
+        echo "Model Name: $$model_name (30B)"
+        echo "Quantization: fp8"
+        echo "=================================================================="
+        echo "模型加载完成"
+        tail -f /dev/null 
+  vacc-embed-rerank:
+    image: ${IMAGE}
+    container_name: vacc-embed-rerank
+    restart: unless-stopped  # 更智能的重启策略
+    shm_size: 256g
+    privileged: true
+    ports:
+      - "9998:9998"
+      - "9999:9999"
+    cap_add:
+      - SYS_NICE
+    environment:
+      - model_path=mod
+      - embedding_model_name=${embedding_model_name}
+      - embedding_GPUs=${embedding_GPUs}
+      - embedding_model_len=${embedding_model_len}
+      - embedding_instance_nums=${embedding_instance_nums}
+      - rerank_model_name=${rerank_model_name}
+      - rerank_GPUs=${rerank_GPUs}
+      - rerank_instance_nums=${rerank_instance_nums}
+      # 稳定性关键配置
+      - VLLM_ENGINE_ITERATION_TIMEOUT_S=86400 # vLLM引擎超时(24小时)
+      - XINFERENCE_SSE_PING_ATTEMPTS_SECONDS=864000
+      - VLLM_NO_USAGE_TIMEOUT=0               # 禁用无请求超时
+
+    volumes:
+      - ${EMB_DATA_DIR}:/embedding_weights
+      - ${RERANK_DATA_DIR}:/rerank_weights
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://0.0.0.0:9998/status || exit 1"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        # 防止SIGTERM导致退出
+        trap : TERM INT
+        unset VACC_VISIBLE_DEVICES
+        source /opt/vastai/vaststream/set_env.sh
+
+        cd /test/vsx 
+        
+        echo 'VACC_VISIBLE_DEVICES=$$embedding_GPUs xinference-local --host 0.0.0.0 --port 9998' > xinf_local.sh
+
+        bash xinf_local.sh &
+
+        # 等待服务就绪
+        while ! curl -s http://127.0.0.1:9998 >/dev/null; do
+          sleep 2
+        done
+        echo '{
+          "model_name": "'$$embedding_model_name'",
+          "model_uid": "'$$embedding_model_name'",
+          "dimensions": 1024,
+          "max_tokens": '$$embedding_model_len',
+          "language": ["en"],
+          "model_uri": "/embedding_weights/'$${model_path}'"
+        }' > register_emb.json
+
+        python test_client.py --url http://127.0.0.1:9998 --embedding --model-config register_emb.json --n_gpu 1 --instance-nums $$embedding_instance_nums 
+
+        echo 'VACC_VISIBLE_DEVICES=$$rerank_GPUs xinference-local --host 0.0.0.0 --port 9999' > xinf_local.sh
+
+        bash xinf_local.sh &
+
+        # 等待服务就绪
+        while ! curl -s http://127.0.0.1:9999 >/dev/null; do
+          sleep 2
+        done
+
+        echo '{
+          "model_name": "'$$rerank_model_name'",
+          "model_uid": "'$$rerank_model_name'",
+          "language": ["en"],
+          "model_uri": "/rerank_weights/'$${model_path}'"
+        }' > register_rerank.json
+
+        python test_client.py --url http://127.0.0.1:9999 --rerank --model-config register_rerank.json --n_gpu 1 --instance-nums $$rerank_instance_nums
+        echo '模型加载完成'
+        tail -f /dev/null 
+
