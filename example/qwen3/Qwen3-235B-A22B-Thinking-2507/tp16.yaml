@@ -98,7 +98,7 @@ services:
             },
             "enforce_eager": true,
             "enable_reasoning": true,
-            "reasoning_parser": "qwen3"
+            "reasoning_parser": "deepseek_r1"
           }
         }' > register_qwen3.json
 
