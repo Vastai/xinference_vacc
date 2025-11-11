@@ -327,7 +327,7 @@ python3 chat.py
 
 通过 xinference_vacc 启动 Embedding 或 Rerank 系列模型，其步骤如下所示。
 **前提条件**
-example/qwen3 的每个子目录下，都有.env 变量
+example/emb_rerank 的每个子目录下，都有.env 变量
 用于配置yaml 中的变量。
 ```shell
 # 模型目录的路径
