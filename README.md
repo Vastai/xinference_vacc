@@ -437,7 +437,7 @@ docker-compose -f xxx.yaml up -d
 
 1. 修改“example/emb-rerank/test/emb.py”高亮内容，分别将其修改为模型服务地址和模型名称。
 
-> 模型服务地址格式为[http://IP:Port/v1/embedding](http://IP:Port/v1/embedding)。其中，IP为 模型服务IP地址，请根据实际情况设置。“Port”为模型服务端口,可在“example/emb-rerank/xxx.yaml”中查看“ports”参数的值确认其端口号。
+> 模型服务地址格式为[http://IP:Port/v1/embeddings](http://IP:Port/v1/embeddings)。其中，IP为 模型服务IP地址，请根据实际情况设置。“Port”为模型服务端口,可在“example/emb-rerank/xxx.yaml”中查看“ports”参数的值确认其端口号。
 
 > 模型名称需与“xxx.yaml”中的“model_name”保持一致。
 
@@ -516,7 +516,6 @@ python3 rerank_concurrency.py
 ![](./docs/imgs/launch_model.png)
 > Note: deepseek v3/r1 当前的配置 tp 必须为32， max_model_len 必须小于等于 65536
 > Note: vsx 加载VACC Embedding/Rerank模型， 每个模型建议用一个core
-
 
 
 
