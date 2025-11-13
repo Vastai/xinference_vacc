@@ -107,7 +107,7 @@ services:
         # 输出汇总信息
         echo "=================================================================="
         echo "Supervisor: http://0.0.0.0:9997"
-        echo "Model Name: $$model_name (30B)"
+        echo "Model Name: $$model_name (235B)"
         echo "Quantization: fp8"
         echo "=================================================================="
 
