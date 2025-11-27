@@ -632,8 +632,11 @@ class EmbeddingModel:
         all_token_nums = 0
         if self.vastai_emb:
             sentences_list = [sentences] if type(sentences) == str else sentences
-            all_token_nums = sum(len(self.vastai_tokenizer.tokenize(s)) for s in sentences_list)
-            logger.info(f"all_token_nums:{all_token_nums}")
+            emb_batch = [len(self.vastai_tokenizer.tokenize(s)) for s in sentences_list]
+            max_batch = max(emb_batch)
+            logger.info(f"emb_batch:{emb_batch}")
+            logger.info("max_batch:{max_batch}")
+            all_token_nums = sum(emb_batch)
             # 获取所有整数类型的max_seqlen（过滤掉字符串key）
             available_seq_lens = [ max_seqlen for max_seqlen in self.model_info_dict.keys() ]
             # 排序
@@ -643,7 +646,7 @@ class EmbeddingModel:
             # 寻找合适的模型
             selected_seq_len = None
             for seq_len in available_seq_lens:
-                if seq_len >= all_token_nums:
+                if seq_len >= max_batch:
                     selected_seq_len = seq_len
                     break
             # 如果没有找到合适的，选择最大的

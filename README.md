@@ -24,11 +24,14 @@ xinference_vacc 是适配了瀚博硬件设备的分布式推理框架，支持�
 - DeepSeek-V3
 - DeepSeek-V3-0324
 - DeepSeek-V3.1
+- DeepSeek-V3.1-Terminus
 - DeepSeek-R1
 - DeepSeek-R1-0528
 - Qwen3-30B-A3B-FP8
 - Qwen3-30B-A3B-Instruct-2507-FP8
 - Qwen3-30B-A3B-Thinking-2507-FP8
+- Qwen3-235B-A22B-Instruct-2507
+- Qwen3-235B-A22B-Thinking-2507
 - Embedding (supported by Vastai ModelZoo)
 - Rerank (supported by Vastai ModelZoo)
 
@@ -72,12 +75,13 @@ example
 | emb-rerank | 启动 Embedding 或 Rerank 系列模型服务的 Docker Compose 文件及测试脚本。|
 | qwen3      | 启动 Qwen3 系列模型服务的 Docker Compose 文件及测试脚本。|
 
-| 文件 | 意义 | 
+| 文件 | 意义 |
 |-------|-------|
 | xxx_1model.yaml | 部署 1个 模型实例的 Docker Compose 配置文件。|
 | xxx.yaml        | 部署 2个 模型实例的 Docker Compose 配置文件。|
-| tp2.yaml | 部署 qwen3 模型实例的 Docker Compose 配置文件, TP2。|
-| tp4.yaml        | 部署 qwen3 模型实例的 Docker Compose 配置文件, TP4。|
+| tp2.yaml | 部署 Qwen3-30B模型实例的 Docker Compose 配置文件, TP2。 |
+| tp4.yaml        | 部署 Qwen3-30B模型实例的 Docker Compose 配置文件, TP4。 |
+| tp16.yaml | 部署 Qwen3-235B模型实例的 Docker Compose 配置文件, TP16。 |
 
 **安装 Docker Compose。** 
 
@@ -279,22 +283,22 @@ instance_nums=2
 ```
 这里要注意，HOST_DATA_DIR表示存放模型目录的路径。具体模型目录是model_directory来指定。
 IMAGE 表示使用的镜像名称。
-- GPU_PAIRS: GPU ID列表。列表数= TP * instance_nums。例如，TP=2，instance_nums=2，列表数= 2 * instance_nums，可设置为 0,1,2,3 。如果是TP=4， instance_nums=2，列表数= 2 * instance_nums，可设置为 0,1,2,3,4,5,6,7 
+- GPU_PAIRS: GPU ID列表。列表数= TP * instance_nums。例如，TP=2，instance_nums=2，列表数= 2 * instance_nums，可设置为 0,1,2,3 。如果是TP=4， instance_nums=2，列表数= 2 * instance_nums，可设置为 0,1,2,3,4,5,6,7 。 如果是TP=16，instance_nums=1, 列表数= 1 * instance_nums，可设置为 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 。
 - instance_nums：实例数量。
-这里要注意的是，
-| 模型名字 | 模型目录| 
+| 模型名字 | 模型目录|
 |-------|-------|
-| qwen3 | Qwen3-30B-A3B-FP8、Qwen3-30B-A3B-Instruct-2507-FP8、Qwen3-30B-A3B-Thinking-2507-FP8 | 
-对于目录 Qwen3-30B-A3B-FP8， 必须指定model_name=qwen3，不可更改。
+| qwen3 | Qwen3-30B-A3B-FP8、Qwen3-30B-A3B-Instruct-2507-FP8、Qwen3-30B-A3B-Thinking-2507-FP8, Qwen3-235B-A22B-Instruct-2507, Qwen3-235B-A22B-Thinking-2507 |
+|备注|必须指定model_name=qwen3，不可更改。|
 
 **步骤 1.** 根据实际情况选择“example/qwen3/model_name/xxx.yaml”文件,
 并修改.env 文件
 
 其中，“model_name”为模型名称，“xxx”为tp2 或 tp4，请根据实际情况替换。
 
-针对 Qwen3 系列模型，当前TP仅支持 2 或 4 。
+针对 Qwen3-30B 系列模型，当前TP仅支持 2 或 4 。如果是针对 Qwen3-235B，当前TP仅支持16
 
 **步骤 2.**  启动模型服务。
+
 ```shell
 cd /home/username/example/qwen3/model_name
 docker-compose -f xxx.yaml up -d 
