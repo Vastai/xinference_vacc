@@ -140,7 +140,9 @@ sudo systemctl enable docker
 ## 启动 DeepSeek 系列模型服务
 
 通过 xinference_vacc 启动 DeepSeek-V3 或 DeepSeek-R1系列模型，其步骤如下所示。
+
 **前提条件**
+
 example/ds3 的每个子目录下，都有.env 变量
 用于配置yaml 中的变量。
 ```shell
@@ -153,12 +155,11 @@ IMAGE=harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.11
 model_name=deepseek-v3
 model_directory=DeepSeek-V3.1
 ```
-这里要注意，HOST_DATA_DIR表示存放模型目录的路径。具体模型目录是model_directory来指定。
+其中，HOST_DATA_DIR表示存放模型目录的路径。
+具体模型目录是model_directory来指定。
 IMAGE 表示使用的镜像名称。
-这里要注意的是，
-对于目录 DeepSeek-V3.1、DeepSeek-V3、DeepSeek-V3-0324， 必须指定model_name=deepseek-v3，不可更改。
-对于目录 DeepSeek-R1、DeepSeek-R1-0528， 必须指定model_name=deepseek-r1，不可更改。
-| 模型名字 | 模型目录| 
+这里要注意的是模型名字。
+| 模型名字(不可更改） | 模型目录| 
 |-------|-------|
 | deepseek-v3 | DeepSeek-V3.1、DeepSeek-V3、DeepSeek-V3-0324 | 
 | deepseek-r1 | DeepSeek-R1、DeepSeek-R1-0528 |
@@ -238,13 +239,17 @@ python3 r1chat.py
 **（可选，根据您手上的资源来）**
 如果您手上有两台或者更多瀚博的一体机，并且网络能互通，而且您这边有多服务需求。
 由于我们每台一体机最多只能部署两个DeepSeek 模型，您这边可以根据需要搭建集群。  
+  
 
-**前提条件**
+**前提条件**  
+
+
 根据实际情况修改“example/ds3/cluster/*.yaml”文件中“volumes”参数，将其修改为实际模型权重文件夹所在路径。注意，多台机器的模型在物理机的绝对路径需要一致，才能跨机加载，这边建议可以用网盘。  
 
 在cluster 目录下，是一个场景例子。这边做一下解释说明，可以根据您那边需要修改。  
 
-场景：假设我们有两台机器，分别是10.24.73.25/10.24.73.23, 每台机器都满足条件（镜像一致，模型已经准备好，16张VA16）  
+场景：
+	假设我们有两台机器，分别是10.24.73.25/10.24.73.23, 每台机器都满足条件（镜像一致，模型已经准备好，16张VA16）  
 
 我们想要加载4个Deepseek-V3.1 模型服务，并通过一个supervisor入口来调度请求. 
 这里，我们选择在10.24.73.25 启动 supervisor + 2worker 进程，并选择9997端口作为supervisor 入口。
@@ -267,6 +272,7 @@ docker-compose -f slave.yaml up -d
 
 通过 xinference_vacc 启动 Qwen3 系列模型，其步骤如下所示。
 **前提条件**
+
 example/qwen3 的每个子目录下，都有.env 变量
 用于配置yaml 中的变量。
 ```shell
@@ -281,10 +287,11 @@ model_directory=Qwen3-30B-A3B-FP8
 GPU_PAIRS=16,17,18,19
 instance_nums=2
 ```
-这里要注意，HOST_DATA_DIR表示存放模型目录的路径。具体模型目录是model_directory来指定。
+其中，HOST_DATA_DIR表示存放模型目录的路径。具体模型目录是model_directory来指定。
 IMAGE 表示使用的镜像名称。
 - GPU_PAIRS: GPU ID列表。列表数= TP * instance_nums。例如，TP=2，instance_nums=2，列表数= 2 * instance_nums，可设置为 0,1,2,3 。如果是TP=4， instance_nums=2，列表数= 2 * instance_nums，可设置为 0,1,2,3,4,5,6,7 。 如果是TP=16，instance_nums=1, 列表数= 1 * instance_nums，可设置为 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 。
 - instance_nums：实例数量。
+
 | 模型名字 | 模型目录|
 |-------|-------|
 | qwen3 | Qwen3-30B-A3B-FP8、Qwen3-30B-A3B-Instruct-2507-FP8、Qwen3-30B-A3B-Thinking-2507-FP8, Qwen3-235B-A22B-Instruct-2507, Qwen3-235B-A22B-Thinking-2507 |
@@ -349,8 +356,10 @@ rerank_model_name=rerank_vacc
 rerank_GPUs=2,3
 rerank_instance_nums=2
 ```
-这里要注意，EMB_DATA_DIR,RERANK_DATA_DIR表示Vastai emb/rerank模型目录的路径。模型可以找瀚博技术人员领取支持。
-因为我们会把【512,1024,2048,4096,8192】不同尺寸的模型都加载到每个指定的die 上， 然后根据用户请求长度，动态的去调度模型来处理。
+其中，EMB_DATA_DIR,RERANK_DATA_DIR表示Vastai emb/rerank模型目录的路径。
+模型可以找瀚博技术人员领取支持。
+举例说明，假如提供的【512,1024,2048,4096,8192】模型尺寸如下，
+我们会把不同尺寸的模型都加载到每个指定的die 上， 然后根据用户请求长度，动态的去调度模型来处理。
 他们的目录结构是一样的，如下：
 ```shell
 ├── 1024
@@ -397,10 +406,10 @@ vacc_config.json如下所示,用户可根据实际情况进行设置。
 
 - batch_size：模型Batch Size。
 
-- max_seqlen：模型输入长度。子目录的名字，比如，加载的模型尺寸是512，batch size 4
+- max_seqlen：模型输入长度。子目录的名字，比如，加载的模型尺寸是512，batch size 1
 ```shell
 {
-        "batch_size": 4,
+        "batch_size": 1,
         "max_seqlen": 512
 }
 ```
@@ -510,12 +519,12 @@ python3 rerank.py
 cd /home/username/example/emb-rerank/benchmark
 python3 rerank_concurrency.py
 ```
-### web launch model
+### webui
 
-- 浏览器输入 `http://${supervisor_host}:9997`
+- 浏览器输入 `http://${supervisor_host}:port`
 - 通过 `Cluster Information` 页面查看集群信息
 - 通过 `Running Models` 页面查看启动的模型
-- `curl 'http://localhost:9997/v1/models'`
+- `curl 'http://localhost:port/v1/models'`
 
 ![](./docs/imgs/launch_model.png)
 > Note: deepseek v3/r1 当前的配置 tp 必须为32， max_model_len 必须小于等于 65536
