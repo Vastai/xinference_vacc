@@ -246,8 +246,7 @@ python3 r1chat.py
 
 **前提条件**  
 
-
-	根据实际情况修改“example/ds3/cluster/*.yaml”文件中“volumes”参数，将其修改为实际模型权重文件夹所在路径。注意，多台机器的模型在物理机的绝对路径需要一致，才能跨机加载，这边建议可以用网盘。  
+根据实际情况修改“example/ds3/cluster/*.yaml”文件中“volumes”参数，将其修改为实际模型权重文件夹所在路径。注意，多台机器的模型在物理机的绝对路径需要一致，才能跨机加载，这边建议可以用网盘。  
 
 在cluster 目录下，是一个场景例子。这边做一下解释说明，可以根据您那边需要修改。  
 
@@ -255,7 +254,7 @@ python3 r1chat.py
 	假设我们有两台机器，分别是10.24.73.25/10.24.73.23, 每台机器都满足条件  
 	（镜像一致，模型已经准备好，16张VA16）  
 
-	我们想要加载4个Deepseek-V3.1 模型服务，并通过一个supervisor入口来调度请求. 
+我们想要加载4个Deepseek-V3.1 模型服务，并通过一个supervisor入口来调度请求. 
 这里，我们选择在10.24.73.25 启动 supervisor + 2worker 进程，并选择9997端口作为supervisor 入口。
 我们要在10.24.73.25执行启动容器命令。这时，这台机器并没有加载模型。只是启动了supervisor + 2worker 进程。
 ```shell
@@ -295,7 +294,7 @@ instance_nums=2
 ```
 其中，HOST_DATA_DIR表示存放模型目录的路径。具体模型目录是model_directory来指定。
 IMAGE 表示使用的镜像名称。
-- GPU_PAIRS: GPU ID列表。列表数= TP * instance_nums。
+- GPU_PAIRS: GPU ID列表。列表数= TP * instance_nums。  
 例如，TP=2，instance_nums=2，列表数= 2 * instance_nums，可设置为 0,1,2,3 。  
 如果是TP=4， instance_nums=2，列表数= 2 * instance_nums，可设置为 0,1,2,3,4,5,6,7。   
 如果是TP=16，instance_nums=1, 列表数= 1 * instance_nums，可设置为 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15。
@@ -347,8 +346,8 @@ python3 chat.py
 
 	通过 xinference_vacc 启动 Embedding 或 Rerank 系列模型，其步骤如下所示。  
 
-**前提条件**
-example/emb_rerank 的每个子目录下，都有.env 变量
+**前提条件**  
+	example/emb_rerank 的每个子目录下，都有.env 变量
 用于配置yaml 中的变量。
 ```shell
 # 模型目录的路径
@@ -366,14 +365,19 @@ rerank_model_name=rerank_vacc
 rerank_GPUs=2,3
 rerank_instance_nums=2
 ```
-	其中，EMB_DATA_DIR,RERANK_DATA_DIR表示Vastai emb/rerank模型目录的路径。
+其中，EMB_DATA_DIR,RERANK_DATA_DIR表示Vastai emb/rerank模型目录的路径。
 模型可以找瀚博技术人员领取支持。  
 
-	举例说明，假如提供的【512,1024,2048,4096,8192】模型尺寸如下，
+举例说明，假如提供的【512,1024,2048,4096,8192】模型尺寸如下，
 我们会把不同尺寸的模型都加载到每个指定的die 上， 然后根据用户请求长度，动态的去调度模型来处理。  
 
 他们的目录结构是一样的，如下：
 ```shell
+├── 512
+│   ├── mod.json
+│   ├── mod.params
+│   ├── mod.so
+│   └── tokenizer
 ├── 1024
 │   ├── mod.json
 │   ├── mod.params
@@ -395,11 +399,6 @@ rerank_instance_nums=2
 │   ├── tokenizer
 │   ├── vamc.env
 │   └── vamc.yaml
-├── 512
-│   ├── mod.json
-│   ├── mod.params
-│   ├── mod.so
-│   └── tokenizer
 ├── 8192
 │   ├── mod.json
 │   ├── mod.params
