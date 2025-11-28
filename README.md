@@ -157,10 +157,10 @@ IMAGE=harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.11
 model_name=deepseek-v3
 model_directory=DeepSeek-V3.1
 ```
-HOST_DATA_DIR表示存放模型目录的路径。
-具体模型目录是model_directory来指定。
-IMAGE 表示使用的镜像名称。
-这里要注意的是模型名字。
+HOST_DATA_DIR表示存放模型目录的路径。  
+model_directory来指定具体模型目录。  
+IMAGE 表示使用的镜像名称。  
+这里要注意的是模型名字。  
 | 模型名字(不可更改） | 模型目录| 
 |-------|-------|
 | deepseek-v3 | DeepSeek-V3.1-Terminus、DeepSeek-V3.1、DeepSeek-V3、DeepSeek-V3-0324 | 
