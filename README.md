@@ -44,7 +44,7 @@ pip install -v .
 ```
 ## 准备镜像（确保有外网，直接下载公开镜像） 
 x86平台：
-docker pull harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.11
+docker pull harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.11  
 arm平台：
 docker pull harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.11_arm
 ## 准备模型
@@ -157,7 +157,7 @@ IMAGE=harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.11
 model_name=deepseek-v3
 model_directory=DeepSeek-V3.1
 ```
-其中，HOST_DATA_DIR表示存放模型目录的路径。
+HOST_DATA_DIR表示存放模型目录的路径。
 具体模型目录是model_directory来指定。
 IMAGE 表示使用的镜像名称。
 这里要注意的是模型名字。
@@ -170,7 +170,7 @@ IMAGE 表示使用的镜像名称。
 **步骤 1.** 
 根据实际情况选择“example/ds3/MTP(或者nonMTP)/xxx.yaml”文件, 并修改.env
 
-其中，“xxx”为模型名，请根据实际情况替换。
+“xxx”为模型名，请根据实际情况替换。
 
 **步骤 2.**  启动模型服务。
 
@@ -186,7 +186,7 @@ docker-compose -f xxx.yaml up -d
 
 1. 修改“example/ds3/v3chat.py”中“base_url”。
 
-> “base_url”为 模型服务地址，格式为[http://IP:Port/v1](http://IP:Port/v1)。其中，IP为 模型服务IP地址，请根据实际情况设置。“Port”为模型服务端口,可在“example/ds3/xxx.yaml”中查看“ports”参数的值确认其端口号。
+> “base_url”为 模型服务地址，格式为[http://IP:Port/v1](http://IP:Port/v1)。IP为 模型服务IP地址，请根据实际情况设置。“Port”为模型服务端口,可在“example/ds3/xxx.yaml”中查看“ports”参数的值确认其端口号。
 
 
 
@@ -214,7 +214,7 @@ python3 v3chat.py
 
 1. 修改“example/ds3/r1chat.py”中“base_url”。
 
-> “base_url”为 模型服务地址，格式为[http://IP:Port/v1](http://IP:Port/v1)。其中，IP为 模型服务IP地址，请根据实际情况设置。“Port”为模型服务端口，可在“example/ds3/xxx.yaml”中查看“ports”参数的值确认其端口号。
+> “base_url”为 模型服务地址，格式为[http://IP:Port/v1](http://IP:Port/v1)。IP为 模型服务IP地址，请根据实际情况设置。“Port”为模型服务端口，可在“example/ds3/xxx.yaml”中查看“ports”参数的值确认其端口号。
 
 
 
@@ -292,7 +292,8 @@ model_directory=Qwen3-30B-A3B-FP8
 GPU_PAIRS=16,17,18,19
 instance_nums=2
 ```
-其中，HOST_DATA_DIR表示存放模型目录的路径。具体模型目录是model_directory来指定。
+HOST_DATA_DIR表示存放模型目录的路径。  
+model_directory来指定具体模型目录。  
 IMAGE 表示使用的镜像名称。
 - GPU_PAIRS: GPU ID列表。列表数= TP * instance_nums。  
 例如，TP=2，instance_nums=2，列表数= 2 * instance_nums，可设置为 0,1,2,3 。  
@@ -308,7 +309,7 @@ IMAGE 表示使用的镜像名称。
 **步骤 1.** 根据实际情况选择“example/qwen3/model_name/xxx.yaml”文件,
 并修改.env 文件
 
-其中，“model_name”为模型名称，“xxx”为tp2 或 tp4，请根据实际情况替换。
+“model_name”为模型名称，“xxx”为tp2 或 tp4，请根据实际情况替换。
 
 针对 Qwen3-30B 系列模型，当前TP仅支持 2 或 4 。如果是针对 Qwen3-235B，当前TP仅支持16
 
@@ -322,7 +323,7 @@ docker-compose -f xxx.yaml up -d
 **步骤 3.** 检查模型服务是否启动成功。
 
 1. 修改“example/qwen3/chat.py”中“base_url”。
-> 其中，“base_url”为 模型服务地址，格式为[http://IP:Port/v1](http://IP:Port/v1)。其中，IP为 模型服务IP地址，请根据实际情况设置。“Port”为模型服务端口,可在“example/qwen3/xxx.yaml”中查看“ports”参数的值确认其端口号。
+> “base_url”为 模型服务地址，格式为[http://IP:Port/v1](http://IP:Port/v1)。IP为 模型服务IP地址，请根据实际情况设置。“Port”为模型服务端口,可在“example/qwen3/xxx.yaml”中查看“ports”参数的值确认其端口号。
 
 ```{code-block}
 from openai import OpenAI
@@ -365,7 +366,7 @@ rerank_model_name=rerank_vacc
 rerank_GPUs=2,3
 rerank_instance_nums=2
 ```
-其中，EMB_DATA_DIR,RERANK_DATA_DIR表示Vastai emb/rerank模型目录的路径。
+EMB_DATA_DIR,RERANK_DATA_DIR表示Vastai emb/rerank模型目录的路径。
 模型可以找瀚博技术人员领取支持。  
 
 举例说明，假如提供的【512,1024,2048,4096,8192】模型尺寸如下，
@@ -407,7 +408,7 @@ rerank_instance_nums=2
 │   ├── vamc.env
 │   └── vamc.yaml
 ```
-其中，每个子目录的Tokenizer 文件夹，其文件结构如下所示。
+每个子目录的Tokenizer 文件夹，其文件结构如下所示。
 ```shell
 ├── tokenizer_config.json
 ├── tokenizer.json
@@ -442,7 +443,7 @@ IMAGE 表示使用的镜像名称。
 
 **步骤 1.** 根据实际情况选择“example/emb-rerank/xxx.yaml”文件中, 修改.env 变量
 
-其中，“xxx”为embedding、reranker，请根据实际情况替换。
+“xxx”为embedding、reranker，请根据实际情况替换。
 
 - embedding：表示启动 Embedding 系列模型服务。
 
@@ -461,7 +462,7 @@ docker-compose -f xxx.yaml up -d
 
 1. 修改“example/emb-rerank/test/emb.py”高亮内容，分别将其修改为模型服务地址和模型名称。
 
-> 模型服务地址格式为[http://IP:Port/v1/embeddings](http://IP:Port/v1/embeddings)。其中，IP为 模型服务IP地址，请根据实际情况设置。“Port”为模型服务端口,可在“example/emb-rerank/xxx.yaml”中查看“ports”参数的值确认其端口号。
+> 模型服务地址格式为[http://IP:Port/v1/embeddings](http://IP:Port/v1/embeddings)。IP为 模型服务IP地址，请根据实际情况设置。“Port”为模型服务端口,可在“example/emb-rerank/xxx.yaml”中查看“ports”参数的值确认其端口号。
 
 > 模型名称需与“xxx.yaml”中的“model_name”保持一致。
 
@@ -495,7 +496,7 @@ python3 emb_concurrency.py
 
 1. 修改“example/emb-rerank/test/rerank.py”高亮内容，将其分别修改为模型服务地址和模型名称。
 
-> 模型服务地址格式为[http://IP:Port/v1/rerank](http://IP:Port/v1/rerank)。其中，IP为 模型服务IP地址，请根据实际情况设置。“Port”为模型服务端口,可在“example/emb-rerank/xxx.yaml”中查看“ports”参数的值确认其端口号。
+> 模型服务地址格式为[http://IP:Port/v1/rerank](http://IP:Port/v1/rerank)。IP为 模型服务IP地址，请根据实际情况设置。“Port”为模型服务端口,可在“example/emb-rerank/xxx.yaml”中查看“ports”参数的值确认其端口号。
 
 > 模型名称需与“xxx.yaml”中的“model_name”保持一致。
 
