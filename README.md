@@ -16,7 +16,8 @@ Xinference（Xorbits Inference）是一个性能强大且功能全面的开源�
 
 xinference 目前适配了瀚博硬件，支持使用瀚博硬件设备进行LLM系列、Embedding系列、Rerank系列, VL系列模型的部署和推理。  
 
-具体PR 如下：
+具体PR 如下：  
+
 https://github.com/xorbitsai/inference/pull/4382  
 
 https://github.com/xorbitsai/inference/pull/4385  
