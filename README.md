@@ -14,8 +14,8 @@
 
 Xinference（Xorbits Inference）是一个性能强大且功能全面的开源分布式推理框架，旨在简化本地和云端模型的部署与管理，支持多样化的模型类型（如大语言模型、嵌入模型和多模态模型）和硬件加速（支持CPU、GPU等）。Xinference不仅可以在本地运行推理模型，还支持在分布式集群环境下高效推理，可以轻松扩展以处理更大规模的推理任务。
 
+xinference 目前适配了瀚博硬件，支持使用瀚博硬件设备进行LLM系列、Embedding系列、Rerank系列, VL系列模型的部署和推理。  
 
-xinference 目前适配了瀚博硬件，支持使用瀚博硬件设备进行LLM系列、Embedding系列、Rerank系列, VL系列模型的部署和推理。
 具体PR 如下：
 https://github.com/xorbitsai/inference/pull/4382  
 
@@ -182,7 +182,7 @@ model_directory=DeepSeek-V3.1
 GPU_LIST=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31
 ##需要启动的模型实例个数
 instance_nums=1
-```  
+```
 这里要注意的是模型名字。  
 | 模型名字（不可更改） | 模型目录| 
 |-------|-------|
@@ -266,7 +266,7 @@ python3 r1chat.py
 
 	如果您手上有两台或者更多瀚博的一体机，并且网络能互通，而且您这边有多服务需求。
 由于我们每台一体机最多只能部署两个DeepSeek 模型，您这边可以根据需要搭建集群。  
-  
+
 
 **前提条件**  
 
@@ -288,7 +288,7 @@ cd /home/username/example/ds3/cluster
 docker-compose -f cluster.yaml up -d 
 ```
 接着，我们在另一个机器10.24.73.23执行启动容器命令。  
-  
+
 这边启动2worker进程后，会执行加载模型和replica 4 副本的请求。
 ```shell
 cd /home/username/example/ds3/cluster
@@ -384,7 +384,9 @@ python3 chat.py
 通过 xinference_vacc 启动 Qwen3vl 系列模型，其步骤如下所示。  
 
 **前提条件**  
-准备 Qwen3-VL-30B-A3B-Thinking-FP8 或者Qwen3-VL-30B-A3B-Instruct-FP8原始模型。Qwen3-VL-30B支持tp4 模式。  
+准备 Qwen3-VL-30B-A3B-Thinking-FP8 或者Qwen3-VL-30B-A3B-Instruct-FP8原始模型。  
+
+Qwen3-VL-30B支持tp4 模式。  
 
 目前支持的情况如下：
 
@@ -412,8 +414,10 @@ model_directory=Qwen3-VL-30B-A3B-Thinking-FP8
 GPU_LIST=0,1,2,3
 instance_nums=1
 ```
-- GPU_LIST: GPU ID列表。列表数= TP4 * instance_nums。 
-假如 instance_nums=2，列表数= tp4 * instance_nums，可设置为 0,1,2,3,4,5,6,7。   
+- GPU_LIST: GPU ID列表。列表数= TP4 * instance_nums。   
+
+  假如 instance_nums=2，列表数= tp4 * instance_nums，可设置为 0,1,2,3,4,5,6,7。   
+
 - instance_nums：实例数量。  
 
 **步骤 1.** 根据实际情况选择“example/qwen3/model_type/model_name/xxx.yaml”文件,
