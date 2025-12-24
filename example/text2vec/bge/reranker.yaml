@@ -1,0 +1,74 @@
+services:
+  bge-rerank-xinference:
+    image: ${IMAGE}
+    container_name: bge-rerank-tp_${rerank_tp}-xinference
+    restart: unless-stopped  # 更智能的重启策略
+    shm_size: 256g
+    privileged: true
+    ports:
+      - "${service_port}:${service_port}"
+    cap_add:
+      - SYS_NICE
+    environment:
+      - rerank_model_name=${rerank_model_name}
+      - rerank_model_directory=${rerank_model_directory}
+      - rerank_GPUs=${rerank_GPUs}
+      - rerank_instance_nums=${rerank_instance_nums}
+      - rerank_tp=${rerank_tp}
+      # 稳定性关键配置
+      - VLLM_ENGINE_ITERATION_TIMEOUT_S=864000 # vLLM引擎超时(24小时)
+      - XINFERENCE_SSE_PING_ATTEMPTS_SECONDS=864000
+      - VLLM_NO_USAGE_TIMEOUT=0               # 禁用无请求超时
+      - VLLM_NO_USAGE_STATS=1
+       # 显存优化（防止单实例OOM）
+      - VLLM_LOGGING_LEVEL=DEBUG  
+      - XOSCAR_CPU_AFFINITY=1           
+    volumes:
+      - ${RERANK_DATA_DIR}:/rerank_weights
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://0.0.0.0:${service_port}/status || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        # 防止SIGTERM导致退出
+        trap : TERM INT
+        cd /test/emb-rerank
+
+        echo "=================== start run supervisor ========================="
+        xinference-local -H 0.0.0.0 -p ${service_port} & 
+        until curl -s http://0.0.0.0:${service_port}/status; do
+          sleep 5
+        done
+
+        # 启动模型服务
+        if ! command -v xinference &> /dev/null; then
+            echo "Error: xinference command not found. Please install Xinference first."
+            exit 1
+        fi
+
+        # 启动两个模型副本，共享UID, 可以通过同一个UID去分发调度请求
+        echo "==================== Launching Model Replica 1 ===================="
+
+        echo '{
+          "model_path": "/rerank_weights/'$${rerank_model_directory}'",
+          "additional_params": {
+            "tensor_parallel_size": ${rerank_tp},
+            "max_model_len": 8192,
+            "enforce_eager": true
+          }
+        }' > register_qwen3.json
+
+        python launch_bge_rerank.py --url http://127.0.0.1:${service_port} --model-config register_qwen3.json --instance-nums $$rerank_instance_nums --gpu_idx $$rerank_GPUs
+
+        # 输出汇总信息
+        echo "=================================================================="
+        echo "Supervisor: http://0.0.0.0:${service_port}"
+        echo "Model Name: $$rerank_model_name"
+        echo "Quantization: fp8"
+        echo "=================================================================="
+
+        tail -f /dev/null 

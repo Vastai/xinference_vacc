@@ -13,10 +13,10 @@ services:
       - model_directory=${model_directory}
       - VLLM_ENGINE_ITERATION_TIMEOUT_S=864000 # vLLM引擎超时(24小时)
       - XINFERENCE_SSE_PING_ATTEMPTS_SECONDS=864000
-      - VLLM_NO_USAGE_TIMEOUT=0               # 禁用无请求超时
-      
+      - VLLM_NO_USAGE_TIMEOUT=0               # 禁用无请求超时 
+      - XOSCAR_CPU_AFFINITY=1
     volumes:
-      - ${HOST_DATA_DIR}:/weights
+      - ${LLM_DATA_DIR}:/weights
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://10.24.73.25:9997/status || exit 1"]
       interval: 30s
@@ -28,7 +28,7 @@ services:
       - |
         # 防止SIGTERM导致退出
         trap : TERM INT
-        cd /test/ds3
+        cd /test/ds3/local
 
         echo "=================== start run supervisor ========================="
         xinference-supervisor -H 10.24.73.25 -p 9997 &
