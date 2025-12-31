@@ -55,9 +55,9 @@ https://github.com/xorbitsai/inference/pull/4370
 - Qwen3-VL-30B-A3B-Thinking-FP8
 ## 准备镜像（确保有外网，直接下载公开镜像） 
 x86平台：
-docker pull harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP1  
+docker pull harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP2  
 arm平台：
-docker pull harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP1_arm
+docker pull harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP2_arm
 ## 准备模型
 根据您的需要，准备好模型。下载到服务器。
 ```
@@ -179,8 +179,8 @@ service_port=9997
 #表示存放模型目录的路径。  
 LLM_DATA_DIR=/logs
 # 镜像设置
-IMAGE=harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP1
-## 如果是arm 平台，公版的镜像是 harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP1_arm
+IMAGE=harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP2
+## 如果是arm 平台，公版的镜像是 harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP2_arm
 # 参数设置
 model_name=DeepSeek-V3.1
 #来指定具体模型目录。  
@@ -322,8 +322,8 @@ example/qwen3 的每个子目录下，都有.env 变量
 service_port=9998
 LLM_DATA_DIR=/logs
 # 镜像设置
-IMAGE=harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP1
-## 如果是arm 平台，公版的镜像是 harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP1_arm
+IMAGE=harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP2
+## 如果是arm 平台，公版的镜像是 harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP2_arm
 # 参数设置
 model_name=qwen3
 model_directory=Qwen3-30B-A3B-FP8
@@ -414,8 +414,8 @@ example/qwen3/instruct/Qwen3-VL-Instruct目录下，有.env 变量
 service_port=9998
 LLM_DATA_DIR=/logs
 # 镜像设置
-IMAGE=harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP1
-## 如果是arm 平台，公版的镜像是 harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP1_arm
+IMAGE=harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP2
+## 如果是arm 平台，公版的镜像是 harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP2_arm
 # 参数设置
 model_name=Qwen3-VL-Thinking
 model_directory=Qwen3-VL-30B-A3B-Thinking-FP8
@@ -476,8 +476,8 @@ service_port=9996
 EMB_DATA_DIR=/disk/models/
 RERANK_DATA_DIR=/disk/models/
 # 镜像设置
-IMAGE=harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP1
-## 如果是arm 平台，公版的镜像是 harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP1_arm
+IMAGE=harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP2
+## 如果是arm 平台，公版的镜像是 harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP2_arm
 # 参数设置
 embedding_model_name=Qwen3-Embedding-0.6B
 embedding_model_directory=Qwen3-Embedding-0.6B

@@ -1,4 +1,4 @@
-FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-25.12.SP1
+FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-25.12.SP2
 
 # 设置工作目录
 WORKDIR /test
