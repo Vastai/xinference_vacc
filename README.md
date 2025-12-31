@@ -631,5 +631,7 @@ Qwen3-Embedding-0.6B 最大长度 65536, Qwen3-Rerank-0.6B 默认最大长度 40
 单模型同时支持最大并发数为 4。如果有多并发需求，可以用多副本
 对于超出上下文长度的请求，服务端会拦截不做处理，客户端需自行校验请求长度。  
 
-对于text2vec 模型，尽管xinference 有内部auto batch 的聚合功能，但在低并发情况下，性能是要稍低于用Vllm serve 原生方式。
-原因是Vllm 社区，对于text2vec 模型，vllm asyncEngine 对外没有暴露类似于generate的接口， 只能用同步的LLM 方式启动的。这个和显卡无关，这个在CPU上cores 利用率也有一点差异。
+对于text2vec 模型，尽管xinference 有内部auto batch 的聚合功能，但在低并发情况下，性能是要稍低于用Vllm serve 原生方式。  
+
+原因是Vllm 社区，对于text2vec 模型，vllm asyncEngine 对外没有暴露类似于generate的接口。  
+只能用同步的LLM 方式启动的。这个和显卡无关，这个在CPU上cores 利用率也有一点差异。
