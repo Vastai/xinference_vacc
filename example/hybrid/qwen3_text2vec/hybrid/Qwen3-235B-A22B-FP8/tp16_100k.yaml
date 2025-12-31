@@ -32,6 +32,9 @@ services:
       - instance_nums=${instance_nums}
       - LLM_MAX_PREFILL_SEQ_LEN=102400   ## 最大输入 100K 环境变量
       - XOSCAR_CPU_AFFINITY=1
+      - XINFERENCE_RERANK_EMPTY_CACHE_COUNT=200
+      - XINFERENCE_EMBEDDING_EMPTY_CACHE_COUNT=200
+      - XINFERENCE_EMBEDDING_EMPTY_CACHE_TOKENS=81920
     volumes:
       - ${LLM_DATA_DIR}:/weights
       - ${EMB_DATA_DIR}:/embedding_weights

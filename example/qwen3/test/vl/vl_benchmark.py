@@ -275,7 +275,7 @@ class Qwen3VLBenchmark:
         # 计算均值指标
         avg_ttft_ms = round(np.mean([r["ttft_ms"] for r in valid_results]), 2)
         avg_tpot_ms = round(np.mean([r["tpot_ms"] for r in valid_results]), 2)
-        avg_decoding_throughput = round(np.mean([r["decoding_token_throughput"] for r in valid_results]), 2)
+        avg_decoding_throughput = round(np.mean([r["decoding_token_throughput"] for r in valid_results]) * concurrency, 2)
         avg_per_req_throughput = round(avg_decoding_throughput / concurrency, 2)  # 按并发数均分
         
         # 构建标准化输出结果

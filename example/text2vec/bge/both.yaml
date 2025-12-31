@@ -27,7 +27,10 @@ services:
       - VLLM_NO_USAGE_STATS=1
        # 显存优化（防止单实例OOM）
       - VLLM_LOGGING_LEVEL=DEBUG 
-      - XOSCAR_CPU_AFFINITY=1           
+      - XOSCAR_CPU_AFFINITY=1    
+      - XINFERENCE_RERANK_EMPTY_CACHE_COUNT=200
+      - XINFERENCE_EMBEDDING_EMPTY_CACHE_COUNT=200
+      - XINFERENCE_EMBEDDING_EMPTY_CACHE_TOKENS=81920         
     volumes:
       - ${EMB_DATA_DIR}:/embedding_weights
       - ${RERANK_DATA_DIR}:/rerank_weights

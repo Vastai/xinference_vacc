@@ -44,7 +44,7 @@ class EmbeddingBenchmark:
         
         return random_text, actual_tokens
     
-    def warm_up(self, warm_up_iterations: int = 10, warm_up_token_length: int = 800):
+    def warm_up(self, warm_up_iterations: int = 3, warm_up_token_length: int = 800):
         """预热TEI服务（batch=1，随机文本）"""
         print(f"Running warm-up for model: {self.model_name}...")
         warm_up_text, _ = self.generate_random_text_by_token_length(warm_up_token_length)
@@ -54,7 +54,7 @@ class EmbeddingBenchmark:
                     self.tei_url,
                     headers=self.headers,
                     json={"input": [warm_up_text], "model": self.model_name},  # 使用配置的模型名
-                    timeout=3000
+                    timeout=300000000
                 )
             except Exception as e:
                 print(f"Warm-up error: {e}")
@@ -69,7 +69,7 @@ class EmbeddingBenchmark:
                 self.tei_url,
                 headers=self.headers,
                 json={"input": [text], "model": self.model_name},  # 使用配置的模型名
-                timeout=6000
+                timeout=60000000
             )
             latency = time.perf_counter() - start_time
             

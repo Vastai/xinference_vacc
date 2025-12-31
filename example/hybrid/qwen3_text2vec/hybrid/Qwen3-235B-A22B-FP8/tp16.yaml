@@ -31,6 +31,9 @@ services:
       - GPU_LIST=${GPU_LIST}                     # 用到的GPU 列表 = tp16 *instance_nums
       - instance_nums=${instance_nums}
       - XOSCAR_CPU_AFFINITY=1
+      - XINFERENCE_RERANK_EMPTY_CACHE_COUNT=200
+      - XINFERENCE_EMBEDDING_EMPTY_CACHE_COUNT=200
+      - XINFERENCE_EMBEDDING_EMPTY_CACHE_TOKENS=81920
     volumes:
       - ${LLM_DATA_DIR}:/weights
       - ${EMB_DATA_DIR}:/embedding_weights

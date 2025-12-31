@@ -16,11 +16,18 @@ Xinference（Xorbits Inference）是一个性能强大且功能全面的开源�
 
 xinference 目前适配了瀚博硬件，支持使用瀚博硬件设备进行LLM系列、Embedding系列、Rerank系列, VL系列模型的部署和推理。  
 
-具体PR 如下：  
+集成具体PR 如下：  
 
 https://github.com/xorbitsai/inference/pull/4382  
 
 https://github.com/xorbitsai/inference/pull/4385  
+
+改社区bug 如下：
+https://github.com/xorbitsai/inference/pull/4422  
+
+https://github.com/xorbitsai/inference/pull/4370  
+
+https://github.com/xorbitsai/inference/pull/4370
 
 ## Engine
 - [`20251219`]: suppport vLLM engine
@@ -603,5 +610,7 @@ python3 rerank.py
 Qwen3-Embedding-0.6B 最大长度 65536, Qwen3-Rerank-0.6B 默认最大长度 40960
 > Note:
 单模型同时支持最大并发数为 4。如果有多并发需求，可以用多副本
-对于超出上下文长度的请求，服务端会拦截不做处理，客户端需自行校验请求长度。
+对于超出上下文长度的请求，服务端会拦截不做处理，客户端需自行校验请求长度。  
 
+对于text2vec 模型，尽管xinference 有内部auto batch 的聚合功能，但在低并发情况下，性能是要低于用Vllm serve 原生方式。
+原因是Vllm 社区，对于text2vec 模型，vllm asyncEngine 对外没有暴露类似于generate的接口， 只能用同步的LLM 方式启动的。这个和显卡无关，这个在CPU上cores 利用率也有一点差异。

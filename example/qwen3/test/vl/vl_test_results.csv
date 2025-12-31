@@ -1,4 +1,0 @@
-concurrency,prompt_token_len,image_size,total_requests,success_requests,success_rate,avg_ttft,p90_ttft,min_ttft,max_ttft,avg_total_latency,p90_total_latency,avg_decode_latency,p90_decode_latency,avg_token_count,avg_token_throughput,avg_response_length
-1,200,512x512,2,2,1.0,1.236956,1.23983,1.233362,1.240549,8.235416,10.867038,6.974446,9.605882,132.0,18.93,215.5
-2,200,512x512,4,4,1.0,1.567036,2.09853,1.255978,2.445728,18.774404,24.890125,17.187259,23.253825,224.25,13.05,360.25
-4,200,512x512,8,8,1.0,2.015806,3.261297,1.234602,3.261891,29.966997,47.333174,27.933145,44.650256,267.12,9.56,415.0

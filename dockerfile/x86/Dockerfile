@@ -1,10 +1,10 @@
-FROM harbor.vastaitech.com/llm_infer/vllm_vacc:VVI-25.12.SP1
+FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-25.12.SP1
 
 # 设置工作目录
 WORKDIR /test
 # 设置 pip 使用清华源（永久生效）
 RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-RUN pip install xinference==1.15.0
+RUN pip install xinference==1.16.0
 RUN pip install xoscar==0.8.1
 RUN pip install qwen_omni_utils
 

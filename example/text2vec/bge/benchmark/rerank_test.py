@@ -137,7 +137,7 @@ class RerankBenchmark:
                         "model": self.model_name,  # 使用配置的模型名
                         "return_documents": False
                     },
-                    timeout=3000
+                    timeout=300000000
                 )
             except Exception as e:
                 print(f"Warm-up error: {e}")
@@ -157,7 +157,7 @@ class RerankBenchmark:
                     "model": self.model_name,  # 使用配置的模型名
                     "return_documents": False
                 },
-                timeout=6000
+                timeout=600000000
             )
             latency = time.perf_counter() - start_time
             
