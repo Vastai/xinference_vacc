@@ -30,7 +30,7 @@ https://github.com/xorbitsai/inference/pull/4370
 https://github.com/xorbitsai/inference/pull/4370
 
 ## Engine
-- [`20251219`]: suppport vLLM engine
+- [`20251231`]: suppport vLLM engine
 
 ## LLM Models
 - DeepSeek-V3
@@ -600,7 +600,7 @@ python3 rerank.py
 
 ### function call 测试
 非流式：    
-example\function_call\nonstream_tool_calls.py
+function_call\nonstream_tool_calls.py
 ```{code-block}
 python3 nonstream_tool_calls.py \
 --host 127.0.0.1 \
@@ -608,7 +608,7 @@ python3 nonstream_tool_calls.py \
 --model-name Qwen3-Instruct
 ```
 流式：  
-example\function_call\stream_tool_calls.py
+function_call\stream_tool_calls.py
 ```{code-block}
 python3 stream_tool_calls.py \
 --host 127.0.0.1 \
