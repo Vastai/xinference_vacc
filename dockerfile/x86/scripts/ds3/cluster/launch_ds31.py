@@ -31,8 +31,8 @@ def launch_ds3_model(args: argparse):
     model_path = model_dict.get("model_path", "/weights/DeepSeek-V3.1")
     if args.think:
         model_uid = client.launch_model(
-            model_name="DeepSeek-V3.1",
-            model_uid="DeepSeek-V3.1",
+            model_name="Deepseek-V3.1",
+            model_uid="Deepseek-V3.1",
             model_engine="vllm",
             model_format="pytorch",
             model_size_in_billions=671,
