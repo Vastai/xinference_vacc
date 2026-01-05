@@ -3,10 +3,11 @@ services:
     image: ${IMAGE}
     container_name: ds31-mtp-text2vec-xinference
     restart: unless-stopped  # 更智能的重启策略
-    shm_size: 256g
+    shm_size: 512g
     privileged: true
     ports:
       - "${service_port}:${service_port}"
+      - "${text2vec_port}:${text2vec_port}"
     cap_add:
       - SYS_NICE
     environment:
@@ -34,6 +35,7 @@ services:
       - XINFERENCE_RERANK_EMPTY_CACHE_COUNT=200
       - XINFERENCE_EMBEDDING_EMPTY_CACHE_COUNT=200
       - XINFERENCE_EMBEDDING_EMPTY_CACHE_TOKENS=81920
+      
     volumes:
       - ${LLM_DATA_DIR}:/weights
       - ${EMB_DATA_DIR}:/embedding_weights
@@ -51,7 +53,7 @@ services:
         trap : TERM INT
         cd /test/ds3/local
        
-        echo "=================== start run supervisor ========================="
+        echo "=================== start run LLM ========================="
         xinference-local -H 0.0.0.0 -p ${service_port} &  
         until curl -s http://0.0.0.0:${service_port}/status; do
           sleep 5
@@ -82,6 +84,12 @@ services:
         python launch_ds31.py --url http://127.0.0.1:${service_port} --model-config register_ds3.json --gpu_idx $$GPU_LIST --instance-nums $$instance_nums
 
         cd /test/emb-rerank
+
+        echo "=================== start run text2vec ========================="
+        xinference-local -H 0.0.0.0 -p ${text2vec_port} &
+        until curl -s http://0.0.0.0:${text2vec_port}/status; do
+          sleep 5
+        done
 
         # ===================== 新增条件判断逻辑 =====================
         # 根据 embedding_model_name 选择执行的脚本
@@ -120,8 +128,8 @@ services:
             echo "Supported values: Qwen3-Embedding-0.6B, bge-m3"
             exit 1
         fi
-        
-        python $$EMB_SCRIPT --url http://127.0.0.1:${service_port}  --model-config register_emb.json --instance-nums $$embedding_instance_nums --gpu_idx $$embedding_GPUs
+
+        python $$EMB_SCRIPT --url http://127.0.0.1:${text2vec_port}  --model-config register_emb.json --instance-nums $$embedding_instance_nums --gpu_idx $$embedding_GPUs
 
           # 根据 rerank_model_name 选择执行的脚本
         RERANK_SCRIPT="launch_bge_rerank.py"
@@ -154,18 +162,17 @@ services:
             echo "Supported values: Qwen3-Reranker-0.6B, bge-reranker-v2-m3"
             exit 1
         fi
-        python $$RERANK_SCRIPT --url http://127.0.0.1:${service_port} --model-config register_rerank.json --instance-nums $$rerank_instance_nums --gpu_idx $$rerank_GPUs
+        python $$RERANK_SCRIPT --url http://127.0.0.1:${text2vec_port} --model-config register_rerank.json --instance-nums $$rerank_instance_nums --gpu_idx $$rerank_GPUs
 
         # 输出汇总信息
         echo "=================================================================="
-        echo "Supervisor: http://0.0.0.0:${service_port}"
+        echo "LLM: http://0.0.0.0:${service_port}"
+        echo "=================================================================="
+        echo "text2vec: http://0.0.0.0:${text2vec_port}"
         echo "=================================================================="
         echo "LLM Model Name: $$model_name"
         echo "=================================================================="
         echo "Embedding Model Name: $$embedding_model_name"
         echo "=================================================================="
         echo "Rerank Model Name: $$rerank_model_name"
-        tail -f /dev/null 
-
-
-        
+        tail -f /dev/null

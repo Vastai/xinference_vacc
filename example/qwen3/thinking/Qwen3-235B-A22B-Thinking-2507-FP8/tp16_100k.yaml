@@ -3,7 +3,7 @@ services:
     image: ${IMAGE}
     container_name: Qwen3-235B-A22B-Thinking-2507-FP8-tp16-xinference
     restart: unless-stopped  # 更智能的重启策略
-    shm_size: 256g
+    shm_size: 512g
     privileged: true
     ports:
       - "${service_port}:${service_port}"

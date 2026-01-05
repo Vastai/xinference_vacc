@@ -3,7 +3,7 @@ services:
     image: ${IMAGE}
     container_name: bge-embedding-tp_${embedding_tp}-xinference
     restart: unless-stopped  # 更智能的重启策略
-    shm_size: 256g
+    shm_size: 512g
     privileged: true
     ports:
       - "${service_port}:${service_port}"
