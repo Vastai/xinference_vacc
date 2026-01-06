@@ -4,7 +4,10 @@ FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-25.12.SP2
 WORKDIR /test
 # 设置 pip 使用清华源（永久生效）
 RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-RUN pip install xinference==1.16.0
+RUN git clone https://github.com/xorbitsai/inference.git
+WORKDIR /test/inference
+RUN git checkout 00957020f29ee8ffd918eec877833d7904966ff0
+RUN pip install -e .[vllm]
 RUN pip install xoscar==0.8.1
 RUN pip install qwen_omni_utils
 
