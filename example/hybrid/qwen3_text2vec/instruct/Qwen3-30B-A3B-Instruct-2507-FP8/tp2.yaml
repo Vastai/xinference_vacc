@@ -52,7 +52,7 @@ services:
         trap : TERM INT
         cd /test/qwen3/local
 
-        echo "=================== start run supervisor ========================="
+        echo "=================== start run LLM ========================="
         xinference-local -H 0.0.0.0 -p ${service_port} &  
         until curl -s http://0.0.0.0:${service_port}/status; do
           sleep 5
@@ -86,77 +86,76 @@ services:
           sleep 5
         done
 
-        # ===================== 新增条件判断逻辑 =====================
-        # 根据 embedding_model_name 选择执行的脚本
+        # ===================== Embedding 模型配置（极简版） =====================
+        # 初始化基础变量
         EMB_SCRIPT="launch_qwen3_emb.py"
-        if [ $$embedding_model_name = "Qwen3-Embedding-0.6B" ]; then
-            echo "==================== Launching Qwen3 Embedding ===================="
-            echo "max model len 65536"
-            EMB_SCRIPT="launch_qwen3_emb.py"
-            echo '{
-              "model_path": "/embedding_weights/'$${embedding_model_directory}'",
-              "additional_params": {
-                "tensor_parallel_size": ${embedding_tp},
-                "max_model_len": 65536,
-                "rope_scaling": {
-                  "rope_type": "yarn",
-                  "factor": 2.0,
-                  "original_max_position_embeddings": 32768
-                },
-                "enforce_eager": true
-              }
-            }' > register_emb.json
-        elif [ $$embedding_model_name = "bge-m3" ]; then
-            echo "==================== Launching BGE-M3 Embedding ===================="
-            echo "max model len 8192"
-            EMB_SCRIPT="launch_bge_emb.py"
-            echo '{
-              "model_path": "/embedding_weights/'$${embedding_model_directory}'",
-              "additional_params": {
-                "tensor_parallel_size": ${embedding_tp},
-                "max_model_len": 8192,
-                "enforce_eager": true
-              }
-            }' > register_emb.json
-        else
-            echo "Error: Unsupported embedding_model_name - $embedding_model_name"
-            echo "Supported values: Qwen3-Embedding-0.6B, bge-m3"
-            exit 1
-        fi
-        
+        EMB_MODEL_LEN="65536"
+        ROPE_CONFIG=""  # 默认空，仅Qwen3模型赋值
+
+        # 根据模型名动态调整参数
+        case "${embedding_model_name}" in
+            "Qwen3-Embedding-0.6B")
+                echo "==================== Launching Qwen3 Embedding ===================="
+                # 仅Qwen3模型添加rope配置（注意前面的逗号，适配JSON语法）
+                ROPE_CONFIG=',
+                        "rope_scaling": {
+                          "rope_type": "yarn",
+                          "factor": 2.0,
+                          "original_max_position_embeddings": 32768
+                        }'
+                ;;
+            "bge-m3")
+                echo "==================== Launching BGE-M3 Embedding ===================="
+                EMB_SCRIPT="launch_bge_emb.py"
+                EMB_MODEL_LEN="8192"
+                ;;
+            *)
+                echo "Error: Unsupported embedding_model_name - ${embedding_model_name}"
+                echo "Supported values: Qwen3-Embedding-0.6B, bge-m3"
+                exit 1
+                ;;
+        esac
+
+        # 通用JSON模板（一份模板适配所有模型）
+        cat > register_emb.json << EOF
+        {
+          "model_path": "/embedding_weights/${embedding_model_directory}",
+          "additional_params": {
+            "tensor_parallel_size": ${embedding_tp},
+            "max_model_len": $$EMB_MODEL_LEN$$ROPE_CONFIG,
+            "enforce_eager": true
+          }
+        }
+        EOF
+
         python $$EMB_SCRIPT --url http://127.0.0.1:${text2vec_port}  --model-config register_emb.json --instance-nums $$embedding_instance_nums --gpu_idx $$embedding_GPUs
 
-          # 根据 rerank_model_name 选择执行的脚本
-        RERANK_SCRIPT="launch_bge_rerank.py"
+        # 根据 rerank_model_name 选择执行的脚本
+        RERANK_SCRIPT="launch_qwen3_rerank.py"
+        RERANK_MODEL_LEN=40960
         if [ $$rerank_model_name = "Qwen3-Reranker-0.6B" ]; then
             echo "==================== Launching Qwen3 Reranker ===================="
-            echo "max model len 40960"
-            RERANK_SCRIPT="launch_qwen3_rerank.py"  # Qwen3 rerank 对应的脚本
-            echo '{
-              "model_path": "/rerank_weights/'$${rerank_model_directory}'",
-              "additional_params": {
-                "tensor_parallel_size": ${rerank_tp},
-                "max_model_len": 40960,
-                "enforce_eager": true
-              }
-            }' > register_rerank.json
         elif [ $$rerank_model_name = "bge-reranker-v2-m3" ]; then
             echo "==================== Launching BGE-Reranker-v2-m3 ===================="
-            echo "max model len 8192"
-            RERANK_SCRIPT="launch_bge_rerank.py"   # BGE rerank 对应的脚本
-            echo '{
-              "model_path": "/rerank_weights/'$${rerank_model_directory}'",
-              "additional_params": {
-                "tensor_parallel_size": ${rerank_tp},
-                "max_model_len": 8192,
-                "enforce_eager": true
-              }
-            }' > register_rerank.json
+            RERANK_SCRIPT="launch_bge_rerank.py"
+            RERANK_MODEL_LEN=8192
         else
             echo "Error: Unsupported rerank_model_name - $rerank_model_name"
             echo "Supported values: Qwen3-Reranker-0.6B, bge-reranker-v2-m3"
             exit 1
         fi
+
+        cat > register_rerank.json << EOF
+        {
+          "model_path": "/rerank_weights/${rerank_model_directory}",
+          "additional_params": {
+            "tensor_parallel_size": ${rerank_tp},
+            "max_model_len": $$RERANK_MODEL_LEN,
+            "enforce_eager": true
+          }
+        }
+        EOF
+        
         python $$RERANK_SCRIPT --url http://127.0.0.1:${text2vec_port} --model-config register_rerank.json --instance-nums $$rerank_instance_nums --gpu_idx $$rerank_GPUs
 
         # 输出汇总信息
