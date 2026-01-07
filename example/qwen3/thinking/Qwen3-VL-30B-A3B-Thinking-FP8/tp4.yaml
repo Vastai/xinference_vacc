@@ -59,8 +59,9 @@ services:
           "model_path": "/weights/'$${model_directory}'",
           "additional_params": {
             "tensor_parallel_size": 4,
-            "max_model_len": 8192,
-            "enforce_eager": true
+            "max_model_len": 131072,
+            "enforce_eager": true,
+            "reasoning_parser": "deepseek_r1"
           }
         }' > register_qwen3.json
 

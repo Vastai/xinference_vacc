@@ -58,6 +58,7 @@ services:
           "additional_params": {
             "tensor_parallel_size": 32,
             "max_model_len": 65536,
+            "max_num_seqs": 4, 
             "enforce_eager": true
           }
         }' > register_ds3.json

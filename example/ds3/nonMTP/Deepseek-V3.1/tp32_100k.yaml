@@ -59,6 +59,7 @@ services:
             "tensor_parallel_size": 32,
             "pipeline_parallel_size": 2,
             "max_model_len": 131072,
+            "max_num_seqs": 4, 
             "enforce_eager": true
           }
         }' > register_ds3.json
