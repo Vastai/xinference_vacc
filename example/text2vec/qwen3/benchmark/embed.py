@@ -8,53 +8,74 @@ import json
 import csv 
 
 class EmbeddingBenchmark:
-    def __init__(self, tei_url: str = "http://localhost:9997/v1/embeddings", model_name: str = "bge-m3"):
+    def __init__(self, tei_url: str = "http://localhost:9997/v1/embeddings", model_name: str = "Qwen3-Embedding-0.6B"):
         self.tei_url = tei_url
-        self.model_name = model_name  # 新增模型名参数，适配不同模型
+        self.model_name = model_name
         self.headers = {"Content-Type": "application/json"}
         # 加载 tokenizer（确保和模型一致）
-        self.tokenizer = AutoTokenizer.from_pretrained(f"/disk/models/{self.model_name}")
-        # 获取模型的有效 token ID 范围（排除特殊token，确保解码后是合法文本）
-        self.valid_token_ids = [
-            id for id in range(self.tokenizer.vocab_size)
-            if not self.tokenizer.decode([id]).strip() == ""  # 排除解码后为空的token
-        ]
+        self.tokenizer = AutoTokenizer.from_pretrained(f"/FS03/weights/{self.model_name}")
+        # 定义基础文本（用于拼接成固定token长度，选择简单词汇避免解码异常）
+        self.base_text = "测试文本 "  # 基础短句，确保token化后长度稳定
     
-    def generate_random_text_by_token_length(self, target_tokens: int) -> Tuple[str, int]:
+    def generate_fixed_length_text(self, target_tokens: int) -> Tuple[str, int]:
         """
-        随机生成指定token长度的合法文本（无需手动拼接句子）
+        生成固定token长度的文本（非随机，精准匹配目标长度）
         :param target_tokens: 目标token长度
-        :return: (随机文本, 实际token长度)
+        :return: (固定文本, 实际token长度)
         """
         if target_tokens <= 0:
             return "", 0
         
-        # 从有效token ID中随机选择 target_tokens 个（确保解码后是合法文本）
-        random_token_ids = np.random.choice(self.valid_token_ids, size=target_tokens, replace=True)
+        # 步骤1：获取基础文本的token长度
+        base_tokens = len(self.tokenizer.encode(self.base_text, add_special_tokens=False))
+        if base_tokens == 0:
+            self.base_text = "a "  # 兜底：确保基础文本有token
+            base_tokens = 1
         
-        # 解码成文本（skip_special_tokens=True 忽略特殊token）
-        random_text = self.tokenizer.decode(random_token_ids, skip_special_tokens=True)
+        # 步骤2：计算需要重复的次数，凑出目标长度
+        repeat_times = target_tokens // base_tokens
+        remainder = target_tokens % base_tokens
         
-        # 验证实际token长度（防止解码后长度不一致）
-        actual_tokens = len(self.tokenizer.encode(random_text, add_special_tokens=False))
+        # 步骤3：拼接基础文本 + 补充剩余token
+        fixed_text = self.base_text * repeat_times
+        if remainder > 0:
+            # 从基础文本中截取前remainder个token的内容
+            base_token_ids = self.tokenizer.encode(self.base_text, add_special_tokens=False)[:remainder]
+            fixed_text += self.tokenizer.decode(base_token_ids, skip_special_tokens=True)
         
-        # 极端情况：解码后长度为0，重新生成（概率极低）
-        if actual_tokens == 0:
-            return self.generate_random_text_by_token_length(target_tokens)
+        # 验证实际token长度（确保精准匹配）
+        actual_tokens = len(self.tokenizer.encode(fixed_text, add_special_tokens=False))
         
-        return random_text, actual_tokens
+        # 极端情况：长度不匹配，微调（概率极低）
+        if actual_tokens != target_tokens:
+            if actual_tokens > target_tokens:
+                # 截取前target_tokens个token
+                token_ids = self.tokenizer.encode(fixed_text, add_special_tokens=False)[:target_tokens]
+                fixed_text = self.tokenizer.decode(token_ids, skip_special_tokens=True)
+                actual_tokens = target_tokens
+            else:
+                # 补充基础文本直到长度匹配
+                while actual_tokens < target_tokens:
+                    fixed_text += self.base_text[:1]  # 每次加1个字符
+                    actual_tokens = len(self.tokenizer.encode(fixed_text, add_special_tokens=False))
+                    if actual_tokens > target_tokens:
+                        token_ids = self.tokenizer.encode(fixed_text, add_special_tokens=False)[:target_tokens]
+                        fixed_text = self.tokenizer.decode(token_ids, skip_special_tokens=True)
+                        actual_tokens = target_tokens
+        
+        return fixed_text, actual_tokens
     
     def warm_up(self, warm_up_iterations: int = 3, warm_up_token_length: int = 800):
-        """预热TEI服务（batch=1，随机文本）"""
+        """预热TEI服务（batch=1，固定长度文本）"""
         print(f"Running warm-up for model: {self.model_name}...")
-        warm_up_text, _ = self.generate_random_text_by_token_length(warm_up_token_length)
+        warm_up_text, _ = self.generate_fixed_length_text(warm_up_token_length)
         for _ in range(warm_up_iterations):
             try:
                 requests.post(
                     self.tei_url,
                     headers=self.headers,
-                    json={"input": [warm_up_text], "model": self.model_name},  # 使用配置的模型名
-                    timeout=300000000
+                    json={"input": [warm_up_text], "model": self.model_name},
+                    timeout=30000000
                 )
             except Exception as e:
                 print(f"Warm-up error: {e}")
@@ -68,14 +89,14 @@ class EmbeddingBenchmark:
             response = requests.post(
                 self.tei_url,
                 headers=self.headers,
-                json={"input": [text], "model": self.model_name},  # 使用配置的模型名
+                json={"input": [text], "model": self.model_name},
                 timeout=60000000
             )
             latency = time.perf_counter() - start_time
             
             if response.status_code == 200:
                 data = response.json()
-                if "data" in data and len(data["data"]) == 1:  # 验证batch=1的返回
+                if "data" in data and len(data["data"]) == 1:
                     return actual_tokens, latency, True
             print(f"Request {request_id} failed: status_code={response.status_code if 'response' in locals() else 'N/A'}")
             return actual_tokens, latency, False
@@ -91,8 +112,8 @@ class EmbeddingBenchmark:
         iterations_per_length: int = 10
     ):
         """
-        运行并发测试（固定batch=1，随机文本）- 支持不同并发数对应不同token长度
-        :param concurrency_token_mapping: 例如 {1: [128,256], 2: [256,512], 4: [128,256,512]}
+        运行并发测试（固定batch=1，固定长度文本）
+        :param concurrency_token_mapping: 例如 {1: [5,10], 2: [5,20], 4: [5]}
         """
         # 预热使用最大token长度
         all_token_lengths = []
@@ -113,12 +134,13 @@ class EmbeddingBenchmark:
             
             for target_tokens in token_lengths:
                 print(f"\n{'='*50}")
-                print(f"Testing target token length: {target_tokens} (batch=1, random text), Concurrency: {concurrency}")
+                print(f"Testing target token length: {target_tokens} (batch=1, fixed text), Concurrency: {concurrency}")
                 print(f"{'='*50}")
                 
-                # 生成随机测试文本（每个长度生成1个文本，所有请求复用）
-                test_text, actual_tokens = self.generate_random_text_by_token_length(target_tokens)
+                # 生成固定长度文本（精准匹配target_tokens）
+                test_text, actual_tokens = self.generate_fixed_length_text(target_tokens)
                 print(f"Target tokens: {target_tokens}, Actual tokens: {actual_tokens}, Concurrency: {concurrency}")
+                print(f"Sample text: {test_text[:50]}..." if len(test_text) > 50 else f"Sample text: {test_text}")
                 
                 # 并发请求
                 with concurrent.futures.ThreadPoolExecutor(max_workers=concurrency) as executor:
@@ -172,7 +194,7 @@ class EmbeddingBenchmark:
                 'concurrency': concurrency,
                 'target_tokens_list': sorted(list(set([r["target_tokens"] for r in reqs]))),
                 'total_requests': total,
-                'success_requests': success,  # 成功请求数（保留原字段）
+                'success_requests': success,
                 'success_rate': success / total if total > 0 else 0.0,
                 'avg_latency': np.mean(latencies),
                 'min_latency': np.min(latencies),
@@ -181,7 +203,7 @@ class EmbeddingBenchmark:
                 'p90_latency': np.percentile(latencies, 90),
                 'p95_latency': np.percentile(latencies, 95),
                 'latencies': latencies,
-                'throughput': concurrency * actual_tokens/np.mean(latencies)  # 按当前并发数计算吞吐量
+                'throughput': concurrency * actual_tokens/np.mean(latencies)
             }
         return summarized
     
@@ -201,7 +223,7 @@ class EmbeddingBenchmark:
     def print_summary(self, all_results: Dict):
         """打印总摘要"""
         print(f"\n{'='*100}")
-        print(f"SUMMARY REPORT (Model: {self.model_name}, Random Text)")
+        print(f"SUMMARY REPORT (Model: {self.model_name}, Fixed Text)")
         print(f"{'='*100}")
         
         print(f"{'Actual Tokens':<12} {'Concurrency':<10} {'Success':<8} {'Avg(s)':<8} {'Min(s)':<8} {'Max(s)':<8} {'P90(s)':<8} {'Total Reqs':<8} {'Throughput':<12}")
@@ -218,7 +240,7 @@ class EmbeddingBenchmark:
         """保存结果到文件（适配并发数）"""
         # 自动生成带模型名的文件名
         if filename is None:
-            filename = f"embedding_benchmark_{self.model_name}_results.json"
+            filename = f"embedding_benchmark_{self.model_name}_fixed_text_results.json"
         
         # 转换numpy类型为json可序列化
         for stats in all_results.values():
@@ -237,17 +259,16 @@ class EmbeddingBenchmark:
         print(f"\nResults saved to {filename}")
 
     def save_csv(self, all_results: Dict, filename: str = None):
-        """保存关键指标到 CSV（按并发数升序排序，替换success_rate为success_requests）"""
+        """保存关键指标到 CSV（按并发数升序排序）"""
         # 自动生成带模型名的文件名
         if filename is None:
-            filename = f"embedding_benchmark_{self.model_name}_results.csv"
+            filename = f"embedding_benchmark_{self.model_name}_fixed_text_results.csv"
         
-        # 调整字段：移除success_rate，新增success_requests
         fieldnames = [
             'actual_tokens',
             'concurrency',
             'target_tokens_list',
-            'success_requests',  # 替换原success_rate
+            'success_requests',
             'avg_latency',
             'p50_latency',
             'p90_latency',
@@ -264,7 +285,7 @@ class EmbeddingBenchmark:
             # 核心排序逻辑：先按并发数升序，再按实际token数升序
             sorted_keys = sorted(
                 all_results.keys(),
-                key=lambda x: (int(x.split('conc')[1]), int(x.split('-')[0]))  # 先取并发数，再取token数
+                key=lambda x: (int(x.split('conc')[1]), int(x.split('-')[0]))
             )
             
             for key in sorted_keys:
@@ -273,7 +294,7 @@ class EmbeddingBenchmark:
                     'actual_tokens': stats['actual_tokens'],
                     'concurrency': stats['concurrency'],
                     'target_tokens_list': ','.join(map(str, stats['target_tokens_list'])),
-                    'success_requests': stats['success_requests'],  # 直接写入成功请求数
+                    'success_requests': stats['success_requests'],
                     'avg_latency': f"{stats['avg_latency']:.6f}",
                     'p50_latency': f"{stats['p50_latency']:.6f}",
                     'p90_latency': f"{stats['p90_latency']:.6f}",
@@ -286,21 +307,22 @@ class EmbeddingBenchmark:
         print(f"✅ CSV results saved to {filename}")
 
 def main():
-    # 核心配置：并发数 -> token长度列表的映射字典（完全自定义）
+    # 核心配置：并发数 -> 固定token长度列表的映射字典（比如全测token长度5）
     concurrency_token_mapping = {
-        1: [128, 256,512,1024,2048,4096,7900],       # 并发1：测试128、256等
-        2: [128, 256,512,1024,2048,4096],            # 并发2：测试256、512等
-        4: [128, 256,512,1024,2048]                  # 并发4：测试128、256、512等
+        2: [128,256,1024,4096],       # 并发2：仅测试token长度5
+        4: [128,256,1024,4096],       # 并发4：仅测试token长度5
+        # 如需测试更多长度，可扩展：
+        # 8: [5, 10, 20]
     }
-    iterations_per_length = 2  # 每个长度测试10轮
-    model_name = "bge-m3"      # 可切换为 "Qwen3-Embedding-0.6B"
-    tei_url = "http://localhost:9997/v1/embeddings"
+    iterations_per_length = 2  # 每个长度测试2轮（可根据需要调整）
+    model_name = "Qwen3-Embedding-0.6B"      # 可切换为其他模型，如 "Qwen3-Embedding-0.6B"
+    tei_url = "http://localhost:9999/v1/embeddings"
     
-    # 创建测试实例（支持指定模型名和URL）
+    # 创建测试实例
     benchmark = EmbeddingBenchmark(tei_url=tei_url, model_name=model_name)
     
     # 运行测试
-    print("Starting embedding benchmark test (batch=1, random text)...")
+    print("Starting embedding benchmark test (batch=1, fixed length text)...")
     print(f"Model name: {model_name}")
     print(f"Concurrency-Token mapping: {concurrency_token_mapping}")
     print(f"Iterations per length: {iterations_per_length}")
@@ -310,14 +332,14 @@ def main():
         iterations_per_length=iterations_per_length
     )
     
-    # 打印每个组合的详细统计
+    # 打印详细统计和总结
     for key in sorted(results.keys(), key=lambda x: (int(x.split('conc')[1]), int(x.split('-')[0]))):
         benchmark.print_stats(results[key])
     
-    # 打印总结和保存结果
     benchmark.print_summary(results)
     benchmark.save_results(results)
     benchmark.save_csv(results)
+
 
 if __name__ == "__main__":
     main()

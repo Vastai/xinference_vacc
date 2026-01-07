@@ -102,6 +102,7 @@ services:
               "additional_params": {
                 "tensor_parallel_size": ${embedding_tp},
                 "max_model_len": 65536,
+                "max_num_seqs": 4,
                 "rope_scaling": {
                   "rope_type": "yarn",
                   "factor": 2.0,
