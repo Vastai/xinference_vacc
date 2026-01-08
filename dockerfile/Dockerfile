@@ -2,6 +2,13 @@ FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-25.12.SP2
 # FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-25.12.SP2_arm
 # 设置工作目录
 WORKDIR /test
+# 设置环境变量
+ENV XINFERENCE_SSE_PING_ATTEMPTS_SECONDS=864000
+ENV VLLM_ENGINE_ITERATION_TIMEOUT_S=864000
+ENV XOSCAR_CPU_AFFINITY=1
+ENV XINFERENCE_RERANK_EMPTY_CACHE_COUNT=200
+ENV XINFERENCE_EMBEDDING_EMPTY_CACHE_COUNT=200
+ENV XINFERENCE_EMBEDDING_EMPTY_CACHE_TOKENS=81920
 # 设置 pip 使用清华源（永久生效）
 RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 RUN git clone https://github.com/xorbitsai/inference.git

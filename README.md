@@ -27,6 +27,8 @@ https://github.com/xorbitsai/inference/pull/4370
 
 https://github.com/xorbitsai/inference/pull/4332
 
+https://github.com/xorbitsai/inference/pull/4454
+
 https://github.com/xorbitsai/xoscar/pull/177
 
 https://github.com/xorbitsai/xoscar/pull/174
@@ -77,7 +79,13 @@ https://github.com/xorbitsai/xoscar/pull/174
         ```bash
         # 启动容器
         # sudo docker exec -it vllm_service bash
-        
+        # 引入环境变量
+        export XINFERENCE_SSE_PING_ATTEMPTS_SECONDS=864000
+        export VLLM_ENGINE_ITERATION_TIMEOUT_S=864000
+        export XOSCAR_CPU_AFFINITY=1
+        export XINFERENCE_RERANK_EMPTY_CACHE_COUNT=200
+        export XINFERENCE_EMBEDDING_EMPTY_CACHE_COUNT=200
+        export XINFERENCE_EMBEDDING_EMPTY_CACHE_TOKENS=81920  
         # 可选pypi源
         # https://mirrors.163.com/pypi/simple/
         # https://mirrors.aliyun.com/pypi/simple/
@@ -179,10 +187,7 @@ https://github.com/xorbitsai/xoscar/pull/174
 | Qwen3 30B  | tp2, tp4 | 
 | text2vec  |  tp1, tp2, tp4 |  
 | Qwen3-VL  | tp2, tp4 | 
-## 备注
-针对DS 系列，可以开启MTP， 对于非MTP 的启动，可以支持最大输入100K。其中需要pipeline data size 2。  
 
-针对Qwen3 235B系列，可以支持最大输入100K。
 ## 用webui 部署
 我们在物理机上面把模型准备好，映射到容器里面 
 举例说明，假如要用9997端口去启动xinference-local。 
@@ -208,6 +213,22 @@ https://github.com/xorbitsai/inference/blob/main/README_zh_CN.md
 
 https://inference.readthedocs.io/zh-cn/latest/getting_started/using_xinference.html#run-xinference-locally
 
+以下是对应的模型名字
+| 模型名字 | 模型目录| 
+|-------|-------|
+| deepseek-v3 | DeepSeek-V3、DeepSeek-V3-0324 | 
+| deepseek-r1 | DeepSeek-R1、DeepSeek-R1-0528 |
+| DeepSeek-V3.1 |DeepSeek-V3.1-Terminus、DeepSeek-V3.1 |
+| qwen3 | Qwen3-30B-A3B-FP8、Qwen3-30B-A3B-GPTQ-Int4、 Qwen3-235B-A22B-FP8|
+| Qwen3-Instruct | Qwen3-30B-A3B-Instruct-2507-FP8、Qwen3-235B-A22B-Instruct-2507 |
+| Qwen3-Thinking | Qwen3-30B-A3B-Thinking-2507-FP8, Qwen3-235B-A22B-Thinking-2507 |
+| Qwen3-VL-Instruct | Qwen3-VL-30B-A3B-Instruct-FP8 |
+| Qwen3-VL-Thinking | Qwen3-VL-30B-A3B-Thinking-FP8 |
+| Qwen3-Embedding-0.6B| Qwen3-Embedding-0.6B|
+| Qwen3-Reranker-0.6B | Qwen3-Reranker-0.6B |
+| bge-m3 | bge-m3 |
+| bge-reranker-v2-m3 | bge-reranker-v2-m3 |
+
 这里，我们举例部署Embedding bge-m3，部署方式用tp1, 单副本，部署在 die 0 上面。注意填写好模型在容器的目录。
 ![Alt text](./images/index/image-1.png)
 ![Alt text](./images/index/image-2.png)
@@ -224,23 +245,27 @@ gpu index: GPU ID列表。列表数= TP * instance_nums。
 
 如果是TP=4， instance_nums=2，列表数= 2 * instance_nums，可设置为 0,1,2,3,4,5,6,7。  
 
-如果是TP=16，instance_nums=1, 列表数= 1 * instance_nums，可设置为 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15。
+如果是TP=16，instance_nums=1, 列表数= 1 * instance_nums，可设置为 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15。  
 
-以下是对应的模型名字
-| 模型名字 | 模型目录| 
-|-------|-------|
-| deepseek-v3 | DeepSeek-V3、DeepSeek-V3-0324 | 
-| deepseek-r1 | DeepSeek-R1、DeepSeek-R1-0528 |
-| DeepSeek-V3.1 |DeepSeek-V3.1-Terminus、DeepSeek-V3.1 |
-| qwen3 | Qwen3-30B-A3B-FP8、Qwen3-30B-A3B-GPTQ-Int4、 Qwen3-235B-A22B-FP8|
-| Qwen3-Instruct | Qwen3-30B-A3B-Instruct-2507-FP8、Qwen3-235B-A22B-Instruct-2507 |
-| Qwen3-Thinking | Qwen3-30B-A3B-Thinking-2507-FP8, Qwen3-235B-A22B-Thinking-2507 |
-| Qwen3-VL-Instruct | Qwen3-VL-30B-A3B-Instruct-FP8 |
-| Qwen3-VL-Thinking | Qwen3-VL-30B-A3B-Thinking-FP8 |
-| Qwen3-Embedding-0.6B| Qwen3-Embedding-0.6B|
-| Qwen3-Reranker-0.6B | Qwen3-Reranker-0.6B |
-| bge-m3 | bge-m3 |
-| bge-reranker-v2-m3 | bge-reranker-v2-m3 |
+对于一些特殊的配置，我们举例说明：
+假如我们要启动一个Deepseek-V3.1 模型，他是hybrid, 可以选择开启或者不开思考模式。开启思考的话，也要开启parse reasoning content, 从输出中提取思考内容。
+![Alt text](./images/index/image-7.png)
+其中，根据需要可以选择开启MTP。如果要开启，就需要填充字段  
+
+speculative_config:{'method': 'deepseek_mtp', 'num_speculative_tokens': 1}
+![Alt text](./images/index/image-5.png)
+
+如果是要扩充上下文：比如要把32K扩大四倍，需要填充字段  
+rope_scaling:{'rope_type': 'yarn', 'factor': 4.0, 'original_max_position_embeddings': 32768}
+![Alt text](./images/index/image-6.png)
+
+## 备注
+针对Qwen3 235B系列，tp16 可以支持最大输入100K。需要环境变量  
+export LLM_MAX_PREFILL_SEQ_LEN=102400  
+
+针对DS 系列，非MTP 可以支持最大输入100K。其中tp 32, pipeline data size 2, 并且需要环境变量  
+export LLM_MAX_PREFILL_SEQ_LEN=102400
+export FUSE_ALL_DECODER_LAYERS=0
 
 ### function call 测试
 非流式：    
@@ -264,13 +289,15 @@ python3 stream_tool_calls.py \
 
 ### 模型最大上下文长度限制：
 
-针对 DeepSeek-V3/R1/V3.1 系列模型，模型最大上下文长度为 64K。  
+针对 DeepSeek-V3/R1/V3.1 系列模型，模型最大上下文长度为 65536。  
 
-针对 Qwen3 系列模型，如果 TP 为 2，模型最大上下文长度为 64K；如果TP 为 4或16，模型最大上下文长度为 128K。  
+针对 Qwen3 系列模型，如果 TP 为 2，模型最大上下文长度为 65536；如果TP 为 4或16，模型最大上下文长度为 131072。  
+
+针对 Qwen3-VL-30B 系列， 如果tp4, 模型最大上下文长度为 131072。
 
 针对 Embedding/Rerank模型， bge-m3, bge-reranker-v2-m3 默认启动最大长度8192。  
 
-Qwen3-Embedding-0.6B 最大长度 65536, Qwen3-Rerank-0.6B 默认最大长度 40960
+Qwen3-Embedding-0.6B 最大长度 32768, Qwen3-Rerank-0.6B 默认最大长度 40960
 > Note:
 单模型同时支持最大并发数为 4。如果有多并发需求，可以用多副本
 对于超出上下文长度的请求，服务端会拦截不做处理，客户端需自行校验请求长度。  
