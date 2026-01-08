@@ -170,8 +170,8 @@ https://github.com/xorbitsai/xoscar/pull/174
 ## VL Models
 - Qwen3-VL-30B-A3B-Instruct-FP8
 - Qwen3-VL-30B-A3B-Thinking-FP8
-## 附录表格，tensor parallel size 表示启动模型单实例所需要的cores
-| 模型 | tensor parallel size |
+## 附录表格
+| 模型 | tensor parallel size(启动单实例) |
 |------------|-------|
 | DS Familiy | tp32 | 
 | Qwen3 235B | tp16 | 
@@ -179,7 +179,8 @@ https://github.com/xorbitsai/xoscar/pull/174
 | text2vec  |  tp1, tp2, tp4 |  
 | Qwen3-VL  | tp2, tp4 | 
 ## 备注
-针对DS 系列，可以开启MTP， 对于非MTP 的启动，可以支持最大输入100K。其中需要pipeline data size 2。
+针对DS 系列，可以开启MTP， 对于非MTP 的启动，可以支持最大输入100K。其中需要pipeline data size 2。  
+
 针对Qwen3 235B系列，可以支持最大输入100K。
 ## 用webui 部署
 我们在物理机上面把模型准备好，映射到容器里面 
@@ -200,17 +201,19 @@ https://github.com/xorbitsai/xoscar/pull/174
 - 通过 `Cluster Information` 页面查看集群信息
 - 通过 `Running Models` 页面查看启动的模型
 - `curl 'http://localhost:port/v1/models'`
-- 更加丰富的介绍可以看社区说明。
+- 更加丰富的介绍可以看社区说明。  
+
 https://github.com/xorbitsai/inference/blob/main/README_zh_CN.md
 https://inference.readthedocs.io/zh-cn/latest/getting_started/using_xinference.html#run-xinference-locally
 
 这里，我们举例部署Embedding bge-m3，部署方式用tp1, 单副本，部署在 die 0 上面。注意填写好模型在容器的目录。
-![Alt text](image-1.png)
-![Alt text](image-2.png)
+![Alt text](./images/index/image-1.png)
+![Alt text](./images/index/image-2.png)
 这里注意要传递tensor_parallel_size 1，和模型最大长度8192
-![Alt text](image-3.png)
+![Alt text](./images/index/image-3.png)
 然后可以查看状态
-![Alt text](image-4.png)
+![Alt text](./images/index/image-4.png)
+
 这里注意多副本的概念。如果要部署多个replica, 那么对应的gpu index 要对齐。
 假如bge-m3 要部署2个副本，tp 2 的方式，那么gpu index 需要写四个，比如4,5,6,7
 gpu index: GPU ID列表。列表数= TP * instance_nums。
