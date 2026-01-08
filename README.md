@@ -11,7 +11,7 @@ Xinference（Xorbits Inference）是一个性能强大且功能全面的开源�
 xinference 目前适配了瀚博硬件，支持使用瀚博硬件设备进行LLM系列、Embedding系列、Rerank系列, VL系列模型的部署和推理。 
 
 - ✨依赖xinference官方仓库，零代码修改，可实现用xinference 平台启动模型在VACC硬件下推理
-- https://github.com/xorbitsai/inference
+https://github.com/xorbitsai/inference
  
 集成具体PR 如下：  
 
@@ -19,7 +19,8 @@ https://github.com/xorbitsai/inference/pull/4382
 
 https://github.com/xorbitsai/inference/pull/4385  
 
-改社区bug 如下：
+改社区bug 如下：  
+
 https://github.com/xorbitsai/inference/pull/4422  
 
 https://github.com/xorbitsai/inference/pull/4370  
@@ -203,7 +204,8 @@ https://github.com/xorbitsai/xoscar/pull/174
 - `curl 'http://localhost:port/v1/models'`
 - 更加丰富的介绍可以看社区说明。  
 
-https://github.com/xorbitsai/inference/blob/main/README_zh_CN.md
+https://github.com/xorbitsai/inference/blob/main/README_zh_CN.md  
+
 https://inference.readthedocs.io/zh-cn/latest/getting_started/using_xinference.html#run-xinference-locally
 
 这里，我们举例部署Embedding bge-m3，部署方式用tp1, 单副本，部署在 die 0 上面。注意填写好模型在容器的目录。
