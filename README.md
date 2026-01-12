@@ -95,16 +95,8 @@ https://github.com/xorbitsai/xoscar/pull/174
 
         # 通过源码安装
         pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-        git clone https://github.com/xorbitsai/inference.git
-        cd xinference
-        git checkout 00957020f29ee8ffd918eec877833d7904966ff0
-        pip install -e .[vllm]
-
-        # 或使用pip安装Xinference, 但是由于最新tag 1.16.0 并没有完全包括PR相关的改动, 因此需要手动在合入修改，暂不推荐。
-        # 等发新tag，可以选择此操作。
-        pip install -U "xinference==1.16.0" -i https://mirrors.aliyun.com/pypi/simple
-        https://github.com/xorbitsai/inference/commit/00957020f29ee8ffd918eec877833d7904966ff0
-        
+        RUN pip install xinference==1.17.0
+        RUN pip install qwen_omni_utils
         ```
 
 ### 3.2 编译完整镜像
