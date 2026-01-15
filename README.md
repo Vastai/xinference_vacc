@@ -29,6 +29,8 @@ https://github.com/xorbitsai/inference/pull/4332
 
 https://github.com/xorbitsai/inference/pull/4454
 
+https://github.com/xorbitsai/inference/pull/4486
+
 https://github.com/xorbitsai/xoscar/pull/177
 
 https://github.com/xorbitsai/xoscar/pull/174
@@ -118,7 +120,8 @@ https://github.com/xorbitsai/xoscar/pull/174
         --name xinference_service \
         --ipc=host \
         --network=host \
-        xinference_vacc:VVI-25.12.SP2 bash
+        --entrypoint bash \
+        xinference_vacc:VVI-25.12.SP2 
     ```
 
 
@@ -139,7 +142,8 @@ https://github.com/xorbitsai/xoscar/pull/174
       --name xinference_service \
       --ipc=host \
       --network=host \
-      harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP2 bash
+      --entrypoint bash \
+      harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP2
   ```
 
 > [!NOTE]
@@ -182,6 +186,7 @@ https://github.com/xorbitsai/xoscar/pull/174
 
 ## 用webui 部署
 我们在物理机上面把模型准备好，映射到容器里面 
+为了方便让进程后台执行，同时看到日志，我们用screen 工具，
 举例说明，假如要用9997端口去启动xinference-local。 
 - 启动容器
   ```bash
@@ -192,9 +197,13 @@ https://github.com/xorbitsai/xoscar/pull/174
       --name xinference_service \
       --ipc=host \
       --network=host \
-      harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP2 bash
-  xinference-local -H 0.0.0.0 -p 9997 & 
+      --entrypoint bash \
+      harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP2 
+  screen -S xinference
+  xinference-local -H 0.0.0.0 -p 9997 2>&1 | tee xinference.log & 
   ```
+- 切出screen 会话，按 Ctrl+A 再按 D（先按住 Ctrl+A，松开后按 D）
+- screen -r xinference  # 切回会话，能看到实时日志
 - 浏览器输入 `http://${supervisor_host}:port`
 - 通过 `Cluster Information` 页面查看集群信息
 - 通过 `Running Models` 页面查看启动的模型
@@ -238,6 +247,12 @@ gpu index: GPU ID列表。列表数= TP * instance_nums。
 如果是TP=4， instance_nums=2，列表数= 2 * instance_nums，可设置为 0,1,2,3,4,5,6,7。  
 
 如果是TP=16，instance_nums=1, 列表数= 1 * instance_nums，可设置为 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15。  
+对于有些情况下，比如您想从gpu index 0开始启动，可以直接写GPU_counter per worker 然后配上副本数，也可以生效。  
+![Alt text](./images/index/image.png)  
+这样的话，您就不用手敲了。
+相当于，gpu indexs 为 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63。  
+
+但是假如您想要在特定某些gpu index加载模型，那就要指定填写了，并且需要保证gpu index 的连续性。  
 
 对于一些特殊的配置，我们举例说明：
 假如我们要启动一个Deepseek-V3.1 模型，他是hybrid, 可以选择开启或者不开思考模式。开启思考的话，也要开启parse reasoning content, 从输出中提取思考内容。
