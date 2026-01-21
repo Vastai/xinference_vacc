@@ -44,10 +44,10 @@ https://github.com/xorbitsai/xoscar/pull/174
     cpu: Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz
     gpu: VA16 / VA1L / VA10L
     torch: 2.8.0+cpu
-    torch-vacc: 1.3.3.777
-    vllm: 0.11.1.dev0+gb8b302cde.d20251030.cpu
-    vllm-vacc: 0.11.0.777
-    driver: 00.25.12.30 d3_3_v2_9_a3_1 a76bf37 20251230
+    torch-vacc: 1.3.4.1081
+    vllm: 0.11.0+.cpu
+    vllm-vacc: 0.11.0.1081
+    driver: 00.26.01.12 d3_3_v2_9_a3_1 eda8215 20260112
     docker: 28.1.1
     ```
 
@@ -148,7 +148,7 @@ https://github.com/xorbitsai/xoscar/pull/174
 
 > [!NOTE]
 > - `vllm_vacc`基础镜像内已包含`torch/vllm`等相关依赖
-> - 截至`2025/12/31`，`VastAI`已支持`xinference`至最新版本`1.16.0`, suppport vLLM engine
+> - 截至`2026/1/21`，`VastAI`已支持`xinference`至最新版本`1.17.0`, suppport vLLM engine
 > - 和`NVIDIA`硬件下`CUDA_VISIBLE_DEVICES`类似；在`VastAI`硬件中可以使用`VACC_VISIBLE_DEVICES`指定`可见计算卡ID`，如`-e VACC_VISIBLE_DEVICES=0,1,2,3`
 > - 需指定适当的`--shm-size`虚拟内存
 
@@ -161,6 +161,10 @@ https://github.com/xorbitsai/xoscar/pull/174
 - DeepSeek-V3.1-Terminus
 - DeepSeek-R1
 - DeepSeek-R1-0528
+- Qwen3-14B-FP8
+- Qwen3-14B-AWQ
+- Qwen3-32B-FP8
+- Qwen3-32B-AWQ
 - Qwen3-30B-A3B-FP8
 - Qwen3-30B-A3B-Instruct-2507-FP8
 - Qwen3-30B-A3B-Thinking-2507-FP8
@@ -180,7 +184,9 @@ https://github.com/xorbitsai/xoscar/pull/174
 |------------|-------|
 | DS Familiy | tp32 | 
 | Qwen3 235B | tp16 | 
+| Qwen3 14B  | tp4, tp8 |
 | Qwen3 30B  | tp2, tp4 | 
+| Qwen3 32B  | tp4, tp8 | 
 | text2vec  |  tp1, tp2, tp4 |  
 | Qwen3-VL  | tp2, tp4 | 
 
@@ -220,7 +226,7 @@ https://inference.readthedocs.io/zh-cn/latest/getting_started/using_xinference.h
 | deepseek-v3 | DeepSeek-V3、DeepSeek-V3-0324 | 
 | deepseek-r1 | DeepSeek-R1、DeepSeek-R1-0528 |
 | DeepSeek-V3.1 |DeepSeek-V3.1-Terminus、DeepSeek-V3.1 |
-| qwen3 | Qwen3-30B-A3B-FP8、Qwen3-30B-A3B-GPTQ-Int4、 Qwen3-235B-A22B-FP8|
+| qwen3 | Qwen3-14B-FP8、Qwen3-14B-AWQ、Qwen3-30B-A3B-FP8、Qwen3-30B-A3B-GPTQ-Int4、 Qwen3-32B-FP8、Qwen3-32B-AWQ、Qwen3-235B-A22B-FP8|
 | Qwen3-Instruct | Qwen3-30B-A3B-Instruct-2507-FP8、Qwen3-235B-A22B-Instruct-2507 |
 | Qwen3-Thinking | Qwen3-30B-A3B-Thinking-2507-FP8, Qwen3-235B-A22B-Thinking-2507 |
 | Qwen3-VL-Instruct | Qwen3-VL-30B-A3B-Instruct-FP8 |
@@ -240,9 +246,9 @@ https://inference.readthedocs.io/zh-cn/latest/getting_started/using_xinference.h
 
 这里注意多副本的概念。如果要部署多个replica, 那么对应的gpu index 要对齐。
 假如bge-m3 要部署2个副本，tp 2 的方式，那么gpu index 需要写四个，比如4,5,6,7
-gpu index: GPU ID列表。列表数= TP * instance_nums。
-
-例如，TP=2，instance_nums=2，列表数= 2 * instance_nums，可设置为 0,1,2,3。  
+gpu index: GPU ID列表。列表数= TP * instance_nums。  
+举例说明，  
+如果是TP=2，instance_nums=2，列表数= 2 * instance_nums，可设置为 0,1,2,3。  
 
 如果是TP=4， instance_nums=2，列表数= 2 * instance_nums，可设置为 0,1,2,3,4,5,6,7。  
 
@@ -250,19 +256,24 @@ gpu index: GPU ID列表。列表数= TP * instance_nums。
 对于有些情况下，比如您想从gpu index 0开始启动，可以直接写GPU_counter per worker 然后配上副本数，也可以生效。  
 ![Alt text](./images/index/image.png)  
 这样的话，您就不用手敲了。
-相当于，gpu indexs 为 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63。  
+相当于，gpu indexs 为   0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63。  
 
-但是假如您想要在特定某些gpu index加载模型，那就要指定填写了，并且需要保证gpu index 的连续性。  
+但是假如您想要在特定某些gpu index加载模型，那就要指定填写了，并且需要保证gpu index 的连续性。 
+我们以deepseek-v3 来举例，启动大模型需要的vllm config 如下：
 
 对于一些特殊的配置，我们举例说明：
 假如我们要启动一个Deepseek-V3.1 模型，他是hybrid, 可以选择开启或者不开思考模式。开启思考的话，也要开启parse reasoning content, 从输出中提取思考内容。
 ![Alt text](./images/index/image-7.png)
-其中，根据需要可以选择开启MTP。如果要开启，就需要填充字段  
+启动模型需要的vllm config 如下:
+tensor_parallel_size: 张量并行数 
+enforce_eager: true  
+max_model_len: 模型最大上下文  
 
+对于DS 系列，如果要开启MTP，就需要填充字段  
 speculative_config:{'method': 'deepseek_mtp', 'num_speculative_tokens': 1}
 ![Alt text](./images/index/image-5.png)
 
-如果是要扩充上下文：比如要把32K扩大四倍，需要填充字段  
+如果模型原生支持扩充上下文：比如Qwen3-30B-A3B-FP8要把32K扩大四倍，需要填充字段  
 rope_scaling:{'rope_type': 'yarn', 'factor': 4.0, 'original_max_position_embeddings': 32768}
 ![Alt text](./images/index/image-6.png)
 
@@ -271,10 +282,12 @@ rope_scaling:{'rope_type': 'yarn', 'factor': 4.0, 'original_max_position_embeddi
 export LLM_MAX_PREFILL_SEQ_LEN=102400  
 
 针对DS 系列，非MTP 可以支持最大输入100K。其中tp 32, pipeline data size 2, 并且需要环境变量  
-export LLM_MAX_PREFILL_SEQ_LEN=102400
+export LLM_MAX_PREFILL_SEQ_LEN=102400  
+
 export FUSE_ALL_DECODER_LAYERS=0
 
 ### function call 测试
+对于支持tools 的模型来说，可以进行function call 测试
 非流式：    
 function_call\nonstream_tool_calls.py
 ```{code-block}
@@ -298,15 +311,16 @@ python3 stream_tool_calls.py \
 
 针对 DeepSeek-V3/R1/V3.1 系列模型，模型最大上下文长度为 65536。  
 
-针对 Qwen3 系列模型，如果 TP 为 2，模型最大上下文长度为 65536；如果TP 为 4或16，模型最大上下文长度为 131072。  
+针对 Qwen3 系列模型，如果 TP 为 2，模型最大上下文长度为 65536；如果TP 为 4 或 8 或 16，模型最大上下文长度为 131072。  
 
 针对 Qwen3-VL-30B 系列， 如果tp4, 模型最大上下文长度为 131072。
 
 针对 Embedding/Rerank模型， bge-m3, bge-reranker-v2-m3 默认启动最大长度8192。  
 
-Qwen3-Embedding-0.6B 最大长度 32768, Qwen3-Rerank-0.6B 默认最大长度 40960
+Qwen3-Embedding-0.6B 最大长度 32768, Qwen3-Rerank-0.6B 默认最大长度 40960。
+
 > Note:
-单模型同时支持最大并发数为 4。如果有多并发需求，可以用多副本
+单LLM模型同时支持最大并发数为 4。如果有多并发需求，可以用多副本
 对于超出上下文长度的请求，服务端会拦截不做处理，客户端需自行校验请求长度。  
 
 对于text2vec 模型，尽管xinference 有内部auto batch 的聚合功能，但在低并发情况下，性能是要稍低于用Vllm serve 原生方式。  
