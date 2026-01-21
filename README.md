@@ -179,6 +179,7 @@ https://github.com/xorbitsai/xoscar/pull/174
 | DS Familiy | tp32 | 
 | Qwen3 235B | tp16 | 
 | Qwen3 14B  | tp4, tp8 |
+| Qwen3 14B AWQ | tp2, tp4, tp8 |
 | Qwen3 30B  | tp2, tp4 | 
 | Qwen3 32B  | tp4, tp8 | 
 | text2vec  |  tp1, tp2, tp4 |  
@@ -282,8 +283,10 @@ gpu index: GPU ID列表。列表数= TP * instance_nums。
 
 启动模型需要的vllm config 如下:  
 
-tensor_parallel_size: 张量并行数 
-enforce_eager: true  
+tensor_parallel_size: 张量并行数  
+
+enforce_eager: True  
+
 max_model_len: 模型最大上下文  
 
 对于DS 系列, 如果要开启MTP, 就需要填充字段speculative_config。  
@@ -291,8 +294,10 @@ max_model_len: 模型最大上下文
 speculative_config:{'method': 'deepseek_mtp', 'num_speculative_tokens': 1}
 ![Alt text](./images/index/image-5.png)
 
-如果模型原生支持扩充上下文。可以填充字段rope_scaling。 
+如果模型原生支持扩充上下文, 可以填充字段rope_scaling。  
+
 rope_scaling:{'rope_type': 'yarn', 'factor': 4.0, 'original_max_position_embeddings': 32768}
+
 ![Alt text](./images/index/image-6.png)
 
 ## 备注
