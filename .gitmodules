@@ -1,3 +1,0 @@
-[submodule "xinference"]
-	path = xinference
-	url = https://github.com/xorbitsai/inference.git

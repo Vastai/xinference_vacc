@@ -6,11 +6,11 @@
 - 模型中心：https://github.com/Vastai/VastModelZOO
 
 ## 1. 官方支持
-Xinference（Xorbits Inference）是一个性能强大且功能全面的开源分布式推理框架，旨在简化本地和云端模型的部署与管理，支持多样化的模型类型（如大语言模型、嵌入模型和多模态模型）和硬件加速（支持CPU、GPU等）。Xinference不仅可以在本地运行推理模型，还支持在分布式集群环境下高效推理，可以轻松扩展以处理更大规模的推理任务。
+Xinference（Xorbits Inference）是一个性能强大且功能全面的开源分布式推理框架, 旨在简化本地和云端模型的部署与管理, 支持多样化的模型类型（如大语言模型、嵌入模型和多模态模型）和硬件加速（支持CPU、GPU等）。Xinference不仅可以在本地运行推理模型, 还支持在分布式集群环境下高效推理, 可以轻松扩展以处理更大规模的推理任务。
 
-xinference 目前适配了瀚博硬件，支持使用瀚博硬件设备进行LLM系列、Embedding系列、Rerank系列, VL系列模型的部署和推理。 
+xinference 目前适配了瀚博硬件, 支持使用瀚博硬件设备进行LLM系列、Embedding系列、Rerank系列, VL系列模型的部署和推理。 
 
-- ✨依赖xinference官方仓库，零代码修改，可实现用xinference 平台启动模型在VACC硬件下推理
+- ✨依赖xinference官方仓库, 零代码修改, 可实现用xinference 平台启动模型在VACC硬件下推理
 https://github.com/xorbitsai/inference
  
 集成具体PR 如下：  
@@ -38,7 +38,7 @@ https://github.com/xorbitsai/xoscar/pull/174
 
 ## 2. 测试平台
 
-- 以下为本指南测试使用的平台信息，供参考
+- 以下为本指南测试使用的平台信息, 供参考
     ```
     os: Ubuntu-22.04.3-LTS-x86_64
     cpu: Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz
@@ -54,7 +54,7 @@ https://github.com/xorbitsai/xoscar/pull/174
 ## 3. 环境准备
 
 > [!TIP]
-> - 步骤`3.1/3.2/3.3`，可任选其一使用
+> - 步骤`3.1/3.2/3.3`, 可任选其一使用
 
 ### 3.1 从基础镜像安装
 
@@ -124,8 +124,8 @@ https://github.com/xorbitsai/xoscar/pull/174
 - 获取完整镜像,根据平台选择
 
   ```bash
-  sudo pull harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP2
-  sudo pull harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP2_arm
+  sudo docker pull harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP2
+  sudo docker pull harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP2_arm
   ```
 
 - 启动容器
@@ -142,8 +142,8 @@ https://github.com/xorbitsai/xoscar/pull/174
 
 > [!NOTE]
 > - `vllm_vacc`基础镜像内已包含`torch/vllm`等相关依赖
-> - 截至`2026/1/21`，`VastAI`已支持`xinference`至最新版本`1.17.0`, suppport vLLM engine
-> - 和`NVIDIA`硬件下`CUDA_VISIBLE_DEVICES`类似；在`VastAI`硬件中可以使用`VACC_VISIBLE_DEVICES`指定`可见计算卡ID`，如`-e VACC_VISIBLE_DEVICES=0,1,2,3`
+> - 截至`2026/1/21`, `VastAI`已支持`xinference`至最新版本`1.17.0`, suppport vLLM engine
+> - 和`NVIDIA`硬件下`CUDA_VISIBLE_DEVICES`类似；在`VastAI`硬件中可以使用`VACC_VISIBLE_DEVICES`指定`可见计算卡ID`, 如`-e VACC_VISIBLE_DEVICES=0,1,2,3`
 > - 需指定适当的`--shm-size`虚拟内存
 
 
@@ -185,11 +185,11 @@ https://github.com/xorbitsai/xoscar/pull/174
 | Qwen3-VL  | tp2, tp4 | 
 
 ## 用webui 部署
-我们在物理机上面把模型准备好，映射到容器里面。  
+我们在物理机上面把模型准备好, 映射到容器里面。  
 
-为了方便让进程后台执行，同时看到日志，我们用screen 工具。  
+为了方便让进程后台执行, 同时看到日志, 我们用screen 工具。  
 
-举例说明，假如要用9997端口去启动xinference-local。 
+举例说明, 假如要用9997端口去启动xinference-local。 
 - 启动容器
   ```bash
   sudo docker run -it \
@@ -204,8 +204,8 @@ https://github.com/xorbitsai/xoscar/pull/174
   screen -S xinference
   xinference-local -H 0.0.0.0 -p 9997 2>&1 | tee xinference.log & 
   ```
-- 切出screen 会话，按 Ctrl+A 再按 D（先按住 Ctrl+A，松开后按 D）
-- screen -r xinference  # 切回会话，能看到实时日志
+- 切出screen 会话, 按 Ctrl+A 再按 D（先按住 Ctrl+A, 松开后按 D）
+- screen -r xinference  # 切回会话, 能看到实时日志
 - 浏览器输入 `http://${xinference_host}:port`
 - 通过 `Cluster Information` 页面查看集群信息
 - 通过 `Running Models` 页面查看启动的模型
@@ -231,53 +231,67 @@ https://inference.readthedocs.io/zh-cn/latest/getting_started/using_xinference.h
 | Qwen3-Reranker-0.6B | Qwen3-Reranker-0.6B |
 | bge-m3 | bge-m3 |
 | bge-reranker-v2-m3 | bge-reranker-v2-m3 |
+  
+  
 
-等待xinference-local 启动好后，我们用webui 方式 部署Embedding bge-m3。
-举例说明, 部署方式用tp1, 单副本，部署在 die 0 上面。注意填写好模型在容器的目录。
+等待xinference-local 启动好后, 我们用webui 方式 部署Embedding bge-m3。  
+
+举例说明, 部署方式用tp1, 单副本, 部署在 die 0 上面。注意填写好模型在容器的目录。
 ![Alt text](./images/index/image-1.png)
 ![Alt text](./images/index/image-2.png)
-这里注意要传递tensor_parallel_size 1，和模型最大长度8192
+这里注意要传递tensor_parallel_size 1, 和模型最大长度8192
 ![Alt text](./images/index/image-3.png)
 然后可以查看状态
 ![Alt text](./images/index/image-4.png)
 
-这里注意多副本的概念。如果要部署多个replica, 选择的tp 模式要和gpu index对齐。  
-假如bge-m3 要部署2个副本，tp 2 的方式，那么gpu index 需要写四个，比如4,5,6,7
+这里注意多副本的概念。  
+如果要部署多个replica, 选择的tp 模式要和gpu index对齐。  
+
+假如bge-m3 要部署2个副本, tp 2 的方式, 那么gpu index 需要写四个, 比如4,5,6,7。  
+
 规则如下：  
 gpu index: GPU ID列表。列表数= TP * instance_nums。  
+
 举例说明,  
 
-如果是TP=2，instance_nums=2，列表数= 2 * instance_nums，可设置为 0,1,2,3。  
+如果是TP=2, instance_nums=2, 列表数= 2 * instance_nums, 可设置为 0,1,2,3。  
 
-如果是TP=4， instance_nums=2，列表数= 2 * instance_nums，可设置为 0,1,2,3,4,5,6,7。  
+如果是TP=4,  instance_nums=2, 列表数= 2 * instance_nums, 可设置为 0,1,2,3,4,5,6,7。  
 
-如果是TP=16，instance_nums=1, 列表数= 1 * instance_nums，可设置为 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15。  
+如果是TP=16, instance_nums=1, 列表数= 1 * instance_nums, 可设置为 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15。  
 
-对于有些情况下，比如您想从gpu index 0开始启动，可以直接写GPU_counter per worker 然后配上副本数，也可以生效。  
+对于有些情况下, 比如您想从gpu index 0开始启动, 可以直接写GPU_counter per worker 然后配上副本数, 也可以生效。  
 ![Alt text](./images/index/image.png)  
-这样的话，您就不用手敲了。  
+这样的话, 您就不用手敲了。  
 
-相当于，gpu indexs 为   0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,  
+相当于, gpu indexs 为  
+
+0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,  
 
 33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63。  
 
-但是假如您想要在特定某些gpu index加载模型，那就要指定填写了，并且需要保证gpu index 的连续性。  
+但是假如您想要在特定某些gpu index加载模型, 那就要指定填写了, 并且需要保证gpu index 的连续性。  
 
 
-我们再看一个例子：
-假如我们要启动一个Deepseek-V3.1 模型，他是hybrid【可以选择开启或者不开思考模式】。开启思考的话，也可以选择是否要开启parse reasoning content【从输出中提取思考内容】。
+我们再看一个例子：  
+
+假如我们要启动一个Deepseek-V3.1 模型。  
+他是hybrid【可以选择开启或者不开思考模式】。  
+开启思考的话, 也可以选择是否要开启parse reasoning content【从输出中提取思考内容】。
 ![Alt text](./images/index/image-7.png)
 
-启动模型需要的vllm config 如下:
+启动模型需要的vllm config 如下:  
+
 tensor_parallel_size: 张量并行数 
 enforce_eager: true  
 max_model_len: 模型最大上下文  
 
-对于DS 系列，如果要开启MTP，就需要填充字段  
+对于DS 系列, 如果要开启MTP, 就需要填充字段speculative_config。  
+  
 speculative_config:{'method': 'deepseek_mtp', 'num_speculative_tokens': 1}
 ![Alt text](./images/index/image-5.png)
 
-如果模型原生支持扩充上下文：比如Qwen3-30B-A3B-FP8要把32K扩大四倍，需要填充字段  
+如果模型原生支持扩充上下文。可以填充字段rope_scaling。 
 rope_scaling:{'rope_type': 'yarn', 'factor': 4.0, 'original_max_position_embeddings': 32768}
 ![Alt text](./images/index/image-6.png)
 
@@ -286,7 +300,7 @@ rope_scaling:{'rope_type': 'yarn', 'factor': 4.0, 'original_max_position_embeddi
 需要环境变量  
 export LLM_MAX_PREFILL_SEQ_LEN=102400  
 
-针对DS 系列，非MTP模式下, 可以支持最大输入100K。其中tp 32, pipeline data size 2, 【相当于把64个dies 都占满】  
+针对DS 系列, 非MTP模式下, 可以支持最大输入100K。其中tp 32, pipeline data size 2, 【相当于把64个dies 都占满】  
 
 并且需要环境变量  
 export LLM_MAX_PREFILL_SEQ_LEN=102400  
@@ -294,7 +308,7 @@ export LLM_MAX_PREFILL_SEQ_LEN=102400
 export FUSE_ALL_DECODER_LAYERS=0
 
 ### function call 测试
-对于支持tools 的模型来说，可以进行function call 测试
+对于支持tools 的模型来说, 可以进行function call 测试
 非流式：    
 function_call\nonstream_tool_calls.py
 ```{code-block}
@@ -311,35 +325,36 @@ python3 stream_tool_calls.py \
 --port 9994 \
 --model-name Qwen3-Instruct
 ```
-其中根据需要修改模型名字，端口号。  
+其中根据需要修改模型名字, 端口号。  
 
 
 ### 模型最大上下文长度限制：
 
-针对 DeepSeek-V3/R1/V3.1 系列模型，模型最大上下文长度为 65536。  
+针对 DeepSeek-V3/R1/V3.1 系列模型, 模型最大上下文长度为 65536。  
 
-针对 Qwen3 系列模型，如果 TP 为 2，模型最大上下文长度为 65536；如果TP 为 4 或 8 或 16，模型最大上下文长度为 131072。  
+针对 Qwen3 系列模型, 如果 TP 为 2, 模型最大上下文长度为 65536；如果TP 为 4 或 8 或 16, 模型最大上下文长度为 131072。  
 
-针对 Qwen3-VL-30B 系列， 如果tp4, 模型最大上下文长度为 131072。
+针对 Qwen3-VL-30B 系列,  如果tp4, 模型最大上下文长度为 131072。
 
-针对 Embedding/Rerank模型， bge-m3, bge-reranker-v2-m3 默认启动最大长度8192。  
+针对 Embedding/Rerank模型,  bge-m3, bge-reranker-v2-m3 默认启动最大长度8192。  
 
 Qwen3-Embedding-0.6B 最大长度 32768, Qwen3-Rerank-0.6B 默认最大长度 40960。
 
 > Note:
-强烈推荐用Webui可视化部署模型, 运行服务稳定，精度与NVIDIA GPU基本一致。
+强烈推荐用Webui可视化部署模型, 运行服务稳定, 精度与NVIDIA GPU基本一致。
 
-`launch engine[VLLM]`：VastAI仅支持vLLM后端
-注意在执行任意与`vllm`相关命令需追加`--enforce_eager`参数
+`launch engine[VLLM]`：VastAI仅支持vLLM后端。   
 
-单LLM模型同时支持最大并发数为 4。如果有多并发需求，可以用多副本。   
+注意在部署时需追加`enforce_eager：True`参数。 
 
-对于超出上下文长度的请求，服务端会拦截不做处理，客户端需自行校验请求长度。  
+单LLM模型同时支持最大并发数为 4。如果有多并发需求, 可以用多副本。   
 
-对于text2vec 模型，尽管xinference 有内部auto batch 的聚合功能，但在低并发情况下，性能是要稍低于用Vllm serve 原生方式。  
+对于超出上下文长度的请求, 服务端会拦截不做处理, 客户端需自行校验请求长度。  
 
-原因是Vllm 社区，对于text2vec 模型，vllm asyncEngine 对外没有暴露类似于generate的接口。  
-只能用同步的LLM 方式启动的。这个和显卡无关，这个在CPU上cores 利用率也有一点差异。  
+对于text2vec 模型, 尽管xinference 有内部auto batch 的聚合功能, 但在低并发情况下, 性能是要稍低于用Vllm serve 原生方式。  
+
+原因是Vllm 社区, 对于text2vec 模型, vllm asyncEngine 对外没有暴露类似于generate的接口。  
+只能用同步的LLM 方式启动的。这个和显卡无关, 这个在CPU上cores 利用率也有一点差异。  
 
 具体参见issue:
 https://github.com/xorbitsai/inference/issues/4418
