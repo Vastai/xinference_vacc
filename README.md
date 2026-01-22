@@ -409,6 +409,12 @@ MTP模式：硬件最低配置要求为单台 VA16（8*128G）服务器。
 ```
 
 ### vllm config 字段
+> Note:
+强烈推荐用Webui可视化部署模型, 运行服务稳定, 精度与NVIDIA GPU基本一致。
+
+`launch engine[VLLM]`：VastAI仅支持vLLM后端。   
+
+部署时候, 根据需要填写vllm config。  
 
 对于DS 系列, 如果要开启MTP, 就需要填充字段speculative_config。   
 
@@ -418,7 +424,7 @@ MTP模式：硬件最低配置要求为单台 VA16（8*128G）服务器。
 
 ![Alt text](./images/index/image-6.png)  
 
-| vllm config | 含义| 
+| 目前常用的vllm config | 含义| 
 |-------|-------|
 | tensor_parallel_size | 张量并行数 | 
 | enforce_eager | True |
@@ -427,20 +433,6 @@ MTP模式：硬件最低配置要求为单台 VA16（8*128G）服务器。
 | rope_scaling| 是否拓展最大上下文。例子： {'rope_type': 'yarn', 'factor': 4.0, 'original_max_position_embeddings': 32768} |
 
 注意在部署时需`enforce_eager：True`参数。 
-
-针对 DeepSeek-V3/R1/V3.1 系列模型, 模型最大上下文长度为 65536。  
-
-针对 Qwen3 系列模型, 如果 TP 为 2, 模型最大上下文长度为 65536；如果TP 为 4 或 8 或 16, 模型最大上下文长度为 131072。  
-
-
-
-> Note:
-强烈推荐用Webui可视化部署模型, 运行服务稳定, 精度与NVIDIA GPU基本一致。
-
-`launch engine[VLLM]`：VastAI仅支持vLLM后端。   
-
-部署时候, 根据需要填写vllm config。   
-
 
 - 特别说明：
 
