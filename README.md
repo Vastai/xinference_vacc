@@ -253,7 +253,8 @@ https://inference.readthedocs.io/zh-cn/latest/getting_started/using_xinference.h
 
   由于选择的是tp1, 要传递tensor_parallel_size 1。  
 
-  这个模型最大长度8192。 
+  这个模型最大长度8192。   
+
   加载成功了可以查看状态。
 ```
 ![Alt text](./images/index/image-1.png)
@@ -281,28 +282,31 @@ gpu index: GPU ID列表。列表数= TP * instance_nums。
 如果是TP=16, instance_nums=1, 列表数= 1 * instance_nums, 可设置为 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15。  
 
 对于有些情况下, 比如您想从gpu index 0开始启动, 可以直接写GPU_counter per worker 然后配上副本数, 也可以生效。
- 
-![Alt text](./images/index/image.png)  
-这样的话, 您就不用手敲了。  
-
-相当于, gpu indexs 为  
+  
+比如我们部署两个Deepseek-R1, 那么如果指定gpu indexs, 需要敲  
 
 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,  
 
 33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63。  
 
-但是假如您想要在特定某些gpu index加载模型, 那就要指定填写了, 并且需要保证gpu index 的连续性。  
+但是您可以通过两个副本, 每个副本32 GPUs 来配置。这样的话, 您就不用手敲了。
+ 
 ``` 
+![Alt text](./images/index/image.png) 
 
 - hybrid 模型
 ```bash
 我们再看一个例子：  
 
 假如我们要启动一个Deepseek-V3.1 模型。  
+
 他是hybrid【可以选择开启或者不开思考模式】。  
-开启思考的话, 也可以选择是否要开启parse reasoning content【从输出中提取思考内容】。
-![Alt text](./images/index/image-7.png)
+
+开启思考的话, 也可以选择是否要开启parse reasoning content【从输出中提取思考内容】。  
+
+如果是instruct 或者 thinking 模型, 就不需要选择。因为只有非思考或者思考。
 ```
+![Alt text](./images/index/image-7.png)
 
 - 使用MinerU
 
@@ -311,14 +315,13 @@ gpu index: GPU ID列表。列表数= TP * instance_nums。
     - 方式：`vlm-http-client`/`hybrid-http-client`
 
         ```bash
-        # step1, 用webui启动模型,下面是vllm 相关配置。
-        ![Alt text](./images/index/image-8.png)
+        # step1, 用webui启动模型。
 
         # step2，以`vlm-http-client`方式启动MinerU解析任务
         mineru -p demo/pdfs/demo1.pdf \
         -o ./output \
         -b vlm-http-client \
-        -u http://127.0.0.1:8090 \
+        -u http://{xinference_host}:port \
         --http-timeout 1200
         ```
 
@@ -329,7 +332,9 @@ gpu index: GPU ID列表。列表数= TP * instance_nums。
 export LLM_MAX_PREFILL_SEQ_LEN=102400  
 ```
 
-针对DS 系列, 非MTP模式下, 可以支持最大输入100K。其中tp 32, pipeline data size 2, 【相当于把64个dies 都占满】  
+针对DS 系列, 非MTP模式下, 可以支持最大输入100K。  
+
+其中tp 32, pipeline data size 2。 【相当于把64个dies 都占满】  
 
 并且需要环境变量  
 ```bash
@@ -339,18 +344,20 @@ export FUSE_ALL_DECODER_LAYERS=0
 ```
 
 ### function call 测试
-对于支持tools 的模型来说, 可以进行function call 测试
+对于支持tools 的模型来说, 可以进行function call 测试  
+
 非流式：    
-function_call\nonstream_tool_calls.py
 ```{code-block}
+function_call\nonstream_tool_calls.py  
+
 python3 nonstream_tool_calls.py \
 --host 127.0.0.1 \
 --port 9994 \
 --model-name Qwen3-Instruct
 ```
 流式：  
-function_call\stream_tool_calls.py
 ```{code-block}
+function_call\stream_tool_calls.py
 python3 stream_tool_calls.py \
 --host 127.0.0.1 \
 --port 9994 \
@@ -371,16 +378,23 @@ python3 stream_tool_calls.py \
 
 Qwen3-Embedding-0.6B 最大长度 32768, Qwen3-Rerank-0.6B 默认最大长度 40960。
 
+针对 MinerU2.5-2509-1.2B, 上下文最大长度16384。
+
 > Note:
 强烈推荐用Webui可视化部署模型, 运行服务稳定, 精度与NVIDIA GPU基本一致。
 
 `launch engine[VLLM]`：VastAI仅支持vLLM后端。   
 
-部署时候, 根据需要填写vllm config。 
-对于DS 系列, 如果要开启MTP, 就需要填充字段speculative_config。  
-![Alt text](./images/index/image-5.png)
-如果模型原生支持扩充上下文, 可以填充字段rope_scaling。
-![Alt text](./images/index/image-6.png)
+部署时候, 根据需要填写vllm config。   
+
+对于DS 系列, 如果要开启MTP, 就需要填充字段speculative_config。   
+
+![Alt text](./images/index/image-5.png)  
+
+如果模型原生支持扩充上下文, 可以填充字段rope_scaling。  
+
+![Alt text](./images/index/image-6.png)  
+
 | vllm config | 含义| 
 |-------|-------|
 | tensor_parallel_size | 张量并行数 | 
@@ -391,16 +405,23 @@ Qwen3-Embedding-0.6B 最大长度 32768, Qwen3-Rerank-0.6B 默认最大长度 40
 
 注意在部署时需`enforce_eager：True`参数。 
 
-单LLM模型同时支持最大并发数为 4。如果有多并发需求, 可以用多副本。   
+- 限制：
+```bash 
+  单LLM模型同时支持最大并发数为 4。如果有多并发需求, 可以用多副本。   
 
-对于超出上下文长度的请求, 服务端会拦截不做处理, 客户端需自行校验请求长度。  
+  对于超出上下文长度的请求, 服务端会拦截不做处理, 客户端需自行校验请求长度。  
+```
 
+- 特别说明：
+```bash
 对于text2vec 模型, 尽管xinference 有内部auto batch 的聚合功能, 但在低并发情况下, 性能是要稍低于用Vllm serve 原生方式。  
 
-原因是Vllm 社区, 对于text2vec 模型, vllm asyncEngine 对外没有暴露类似于generate的接口。  
+原因是Vllm 社区, 对于text2vec 模型, vllm asyncEngine 对外没有暴露类似于generate的接口。   
+ 
 只能用同步的LLM 方式启动的。这个和显卡无关, 这个在CPU上cores 利用率也有一点差异。  
 
 具体参见issue:
 https://github.com/xorbitsai/inference/issues/4418
 
+```bash
  
