@@ -11,7 +11,8 @@ ENV XINFERENCE_EMBEDDING_EMPTY_CACHE_COUNT=200
 ENV XINFERENCE_EMBEDDING_EMPTY_CACHE_TOKENS=81920
 # 设置 pip 使用清华源（永久生效）
 RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-RUN pip install xinference==1.17.0 && pip install qwen_omni_utils
+RUN pip install xinference==1.17.0 && pip install qwen_omni_utils && pip install qwen-vl-utils && pip install mineru_vl_utils
+RUN pip install -U "mineru[core]==2.7.0"
 RUN apt update && apt install screen -y
 
 # 可以添加其他需要的命令或配置

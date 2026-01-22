@@ -91,8 +91,12 @@ https://github.com/xorbitsai/xoscar/pull/174
 
         # 通过轮子包安装
         pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-        RUN pip install xinference==1.17.0
-        RUN pip install qwen_omni_utils
+        pip install xinference==1.17.0
+        pip install qwen_omni_utils
+        pip install qwen-vl-utils
+        pip install mineru_vl_utils
+        pip install -U "mineru[core]==2.7.0"
+
         ```
 
 ### 3.2 编译完整镜像
@@ -157,6 +161,7 @@ https://github.com/xorbitsai/xoscar/pull/174
 - DeepSeek-R1-0528
 - Qwen3-14B-FP8
 - Qwen3-14B-AWQ
+- Qwen3-14B-GPTQ-Int4
 - Qwen3-32B-FP8
 - Qwen3-32B-AWQ
 - Qwen3-30B-A3B-FP8
@@ -164,6 +169,7 @@ https://github.com/xorbitsai/xoscar/pull/174
 - Qwen3-30B-A3B-Thinking-2507-FP8
 - Qwen3-235B-A22B-Instruct-2507
 - Qwen3-235B-A22B-Thinking-2507
+- MinerU2.5-2509-1.2B
 ## Embedding Models
 - bge-m3
 - Qwen3-0.6B-Embedding
@@ -179,11 +185,12 @@ https://github.com/xorbitsai/xoscar/pull/174
 | DS Familiy | tp32 | 
 | Qwen3 235B | tp16 | 
 | Qwen3 14B  | tp4, tp8 |
-| Qwen3 14B AWQ | tp2, tp4, tp8 |
+| Qwen3 14B GPTQ Int4 | tp2, tp4, tp8 |
 | Qwen3 30B  | tp2, tp4 | 
 | Qwen3 32B  | tp4, tp8 | 
 | text2vec  |  tp1, tp2, tp4 |  
 | Qwen3-VL  | tp2, tp4 | 
+| MinerU2.5-2509-1.2B | tp2 | 
 
 ## 用webui 部署
 我们在物理机上面把模型准备好, 映射到容器里面。  
@@ -223,7 +230,7 @@ https://inference.readthedocs.io/zh-cn/latest/getting_started/using_xinference.h
 | deepseek-v3 | DeepSeek-V3、DeepSeek-V3-0324 | 
 | deepseek-r1 | DeepSeek-R1、DeepSeek-R1-0528 |
 | DeepSeek-V3.1 |DeepSeek-V3.1-Terminus、DeepSeek-V3.1 |
-| qwen3 | Qwen3-14B-FP8、Qwen3-14B-AWQ、Qwen3-30B-A3B-FP8、Qwen3-30B-A3B-GPTQ-Int4、 Qwen3-32B-FP8、Qwen3-32B-AWQ、Qwen3-235B-A22B-FP8|
+| qwen3 | Qwen3-14B-FP8、Qwen3-14B-AWQ、Qwen3-14B-GPTQ-Int4、Qwen3-30B-A3B-FP8、Qwen3-30B-A3B-GPTQ-Int4、 Qwen3-32B-FP8、Qwen3-32B-AWQ、Qwen3-235B-A22B-FP8|
 | Qwen3-Instruct | Qwen3-30B-A3B-Instruct-2507-FP8、Qwen3-235B-A22B-Instruct-2507 |
 | Qwen3-Thinking | Qwen3-30B-A3B-Thinking-2507-FP8, Qwen3-235B-A22B-Thinking-2507 |
 | Qwen3-VL-Instruct | Qwen3-VL-30B-A3B-Instruct-FP8 |
@@ -232,20 +239,32 @@ https://inference.readthedocs.io/zh-cn/latest/getting_started/using_xinference.h
 | Qwen3-Reranker-0.6B | Qwen3-Reranker-0.6B |
 | bge-m3 | bge-m3 |
 | bge-reranker-v2-m3 | bge-reranker-v2-m3 |
+| MinerU2.5-2509-1.2B | MinerU2.5-2509-1.2B | 
   
   
 
-等待xinference-local 启动好后, 我们用webui 方式 部署Embedding bge-m3。  
+等待xinference-local 启动好后, 我们用webui 方式部署模型。
+ 
+- 部署Embedding bge-m3
+```bash
+  部署方式用tp1, 单副本, 希望加载在 die 0 上面。  
 
-举例说明, 部署方式用tp1, 单副本, 部署在 die 0 上面。注意填写好模型在容器的目录。
+  注意填写好模型在容器的目录 和相关vllm config。  
+
+  由于选择的是tp1, 要传递tensor_parallel_size 1。  
+
+  这个模型最大长度8192。 
+  加载成功了可以查看状态。
+```
 ![Alt text](./images/index/image-1.png)
 ![Alt text](./images/index/image-2.png)
-这里注意要传递tensor_parallel_size 1, 和模型最大长度8192
+
 ![Alt text](./images/index/image-3.png)
-然后可以查看状态
+
 ![Alt text](./images/index/image-4.png)
 
-这里注意多副本的概念。  
+- 多副本
+```bash
 如果要部署多个replica, 选择的tp 模式要和gpu index对齐。  
 
 假如bge-m3 要部署2个副本, tp 2 的方式, 那么gpu index 需要写四个, 比如4,5,6,7。  
@@ -261,7 +280,8 @@ gpu index: GPU ID列表。列表数= TP * instance_nums。
 
 如果是TP=16, instance_nums=1, 列表数= 1 * instance_nums, 可设置为 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15。  
 
-对于有些情况下, 比如您想从gpu index 0开始启动, 可以直接写GPU_counter per worker 然后配上副本数, 也可以生效。  
+对于有些情况下, 比如您想从gpu index 0开始启动, 可以直接写GPU_counter per worker 然后配上副本数, 也可以生效。
+ 
 ![Alt text](./images/index/image.png)  
 这样的话, 您就不用手敲了。  
 
@@ -272,45 +292,51 @@ gpu index: GPU ID列表。列表数= TP * instance_nums。
 33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63。  
 
 但是假如您想要在特定某些gpu index加载模型, 那就要指定填写了, 并且需要保证gpu index 的连续性。  
+``` 
 
-
+- hybrid 模型
+```bash
 我们再看一个例子：  
 
 假如我们要启动一个Deepseek-V3.1 模型。  
 他是hybrid【可以选择开启或者不开思考模式】。  
 开启思考的话, 也可以选择是否要开启parse reasoning content【从输出中提取思考内容】。
 ![Alt text](./images/index/image-7.png)
+```
 
-启动模型需要的vllm config 如下:  
+- 使用MinerU
 
-tensor_parallel_size: 张量并行数  
+    - 模型准备，参考官方介绍：[model_source.md](https://github.com/opendatalab/MinerU/blob/master/docs/zh/usage/model_source.md)
 
-enforce_eager: True  
+    - 方式：`vlm-http-client`/`hybrid-http-client`
 
-max_model_len: 模型最大上下文  
+        ```bash
+        # step1, 用webui启动模型,下面是vllm 相关配置。
+        ![Alt text](./images/index/image-8.png)
 
-对于DS 系列, 如果要开启MTP, 就需要填充字段speculative_config。  
-  
-speculative_config:{'method': 'deepseek_mtp', 'num_speculative_tokens': 1}
-![Alt text](./images/index/image-5.png)
-
-如果模型原生支持扩充上下文, 可以填充字段rope_scaling。  
-
-rope_scaling:{'rope_type': 'yarn', 'factor': 4.0, 'original_max_position_embeddings': 32768}
-
-![Alt text](./images/index/image-6.png)
+        # step2，以`vlm-http-client`方式启动MinerU解析任务
+        mineru -p demo/pdfs/demo1.pdf \
+        -o ./output \
+        -b vlm-http-client \
+        -u http://127.0.0.1:8090 \
+        --http-timeout 1200
+        ```
 
 ## 备注
 针对Qwen3 235B系列, tp16 可以支持最大输入100K。  
-需要环境变量  
+需要环境变量
+```bash  
 export LLM_MAX_PREFILL_SEQ_LEN=102400  
+```
 
 针对DS 系列, 非MTP模式下, 可以支持最大输入100K。其中tp 32, pipeline data size 2, 【相当于把64个dies 都占满】  
 
 并且需要环境变量  
+```bash
 export LLM_MAX_PREFILL_SEQ_LEN=102400  
 
 export FUSE_ALL_DECODER_LAYERS=0
+```
 
 ### function call 测试
 对于支持tools 的模型来说, 可以进行function call 测试
@@ -350,7 +376,20 @@ Qwen3-Embedding-0.6B 最大长度 32768, Qwen3-Rerank-0.6B 默认最大长度 40
 
 `launch engine[VLLM]`：VastAI仅支持vLLM后端。   
 
-注意在部署时需追加`enforce_eager：True`参数。 
+部署时候, 根据需要填写vllm config。 
+对于DS 系列, 如果要开启MTP, 就需要填充字段speculative_config。  
+![Alt text](./images/index/image-5.png)
+如果模型原生支持扩充上下文, 可以填充字段rope_scaling。
+![Alt text](./images/index/image-6.png)
+| vllm config | 含义| 
+|-------|-------|
+| tensor_parallel_size | 张量并行数 | 
+| enforce_eager | True |
+| max_model_len |模型最大上下文 |
+| speculative_config | MTP 功能是否开启。例子: {'method': 'deepseek_mtp', 'num_speculative_tokens': 1} | 
+| rope_scaling| 是否拓展最大上下文。例子： {'rope_type': 'yarn', 'factor': 4.0, 'original_max_position_embeddings': 32768} |
+
+注意在部署时需`enforce_eager：True`参数。 
 
 单LLM模型同时支持最大并发数为 4。如果有多并发需求, 可以用多副本。   
 
