@@ -446,5 +446,9 @@ MTP模式：硬件最低配置要求为单台 VA16（8*128G）服务器。
 具体参见issue:
 https://github.com/xorbitsai/inference/issues/4418
 
+enable_xavier=True
+xinference 这个功能目前只针对英伟达产品生效。
+
+
 ```
  
