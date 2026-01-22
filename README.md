@@ -366,26 +366,48 @@ python3 stream_tool_calls.py \
 其中根据需要修改模型名字, 端口号。  
 
 
-### 模型最大上下文长度限制：
+### 模型最大输入和最大上下文长度限制
 
-针对 DeepSeek-V3/R1/V3.1 系列模型, 模型最大上下文长度为 65536。  
+针对DeepSeek-V3/R1/V3.1系列模型：
+```bash
+非MTP（Multi-Token Prediction）模式：最大输入长度为 100K，最大上下文长度为128K。
 
-针对 Qwen3 系列模型, 如果 TP 为 2, 模型最大上下文长度为 65536；如果TP 为 4 或 8 或 16, 模型最大上下文长度为 131072。  
+MTP模式：最大输入长度为 56K，最大上下文长度为 64K。
+```
 
-针对 Qwen3-VL-30B 系列,  如果tp4, 模型最大上下文长度为 131072。
+针对Qwen3/Qwen3-VL系列模型：
+```bash
+如果模型为 Qwen3 30B 系列模型，TP 支持 2 或 4。如果 TP 为 2，最大输入长度为 56K，最大上下文长度为 64K。  
 
-针对 Embedding/Rerank模型,  bge-m3, bge-reranker-v2-m3 默认启动最大长度8192。  
+如果 TP为 4，最大输入长度为 56K，最大上下文长度为 128K。
 
-Qwen3-Embedding-0.6B 最大长度 32768, Qwen3-Rerank-0.6B 默认最大长度 40960。
+如果模型为 Qwen3 235B 系列模型，TP仅支持 16，此时，最大输入长度为 100K，最大上下文长度为 128K。
+```
 
-针对 MinerU2.5-2509-1.2B, 上下文最大长度16384。
+针对 Embedding/Rerank模型：
+```bash
+  bge-m3, bge-reranker-v2-m3 最大长度8192。    
 
-> Note:
-强烈推荐用Webui可视化部署模型, 运行服务稳定, 精度与NVIDIA GPU基本一致。
+  Qwen3-Embedding-0.6B 最大长度 32768, Qwen3-Rerank-0.6B 默认最大长度 40960。  
+```
 
-`launch engine[VLLM]`：VastAI仅支持vLLM后端。   
+针对 MinerU2.5-2509-1.2B：
+```bash
+   MinerU2.5-2509-1.2B 只支持tp2, 最大长度16384。
+```
 
-部署时候, 根据需要填写vllm config。   
+DeepSeek-V3/R1/V3.1系列模型最低配置要求：
+```bash
+非MTP模式：最大输入长度为 100K时，硬件最低配置要求为单台 VA16（16*128G）服务器。最大输入长度为 56K时，硬件最低配置要求为单台 VA16（8*128G）服务器。
+
+MTP模式：硬件最低配置要求为单台 VA16（8*128G）服务器。
+
+模型同时支持最大并发数为 4。
+
+对于超出上下文长度的请求，服务端会拦截不做处理，客户端需自行校验请求长度。
+```bash
+
+### vllm config 字段
 
 对于DS 系列, 如果要开启MTP, 就需要填充字段speculative_config。   
 
@@ -405,19 +427,26 @@ Qwen3-Embedding-0.6B 最大长度 32768, Qwen3-Rerank-0.6B 默认最大长度 40
 
 注意在部署时需`enforce_eager：True`参数。 
 
-- 限制：
-```bash 
-  单LLM模型同时支持最大并发数为 4。如果有多并发需求, 可以用多副本。   
+针对 DeepSeek-V3/R1/V3.1 系列模型, 模型最大上下文长度为 65536。  
 
-  对于超出上下文长度的请求, 服务端会拦截不做处理, 客户端需自行校验请求长度。  
-```
+针对 Qwen3 系列模型, 如果 TP 为 2, 模型最大上下文长度为 65536；如果TP 为 4 或 8 或 16, 模型最大上下文长度为 131072。  
+
+
+
+> Note:
+强烈推荐用Webui可视化部署模型, 运行服务稳定, 精度与NVIDIA GPU基本一致。
+
+`launch engine[VLLM]`：VastAI仅支持vLLM后端。   
+
+部署时候, 根据需要填写vllm config。   
+
 
 - 特别说明：
 ```bash
 对于text2vec 模型, 尽管xinference 有内部auto batch 的聚合功能, 但在低并发情况下, 性能是要稍低于用Vllm serve 原生方式。  
 
 原因是Vllm 社区, 对于text2vec 模型, vllm asyncEngine 对外没有暴露类似于generate的接口。   
- 
+
 只能用同步的LLM 方式启动的。这个和显卡无关, 这个在CPU上cores 利用率也有一点差异。  
 
 具体参见issue:
