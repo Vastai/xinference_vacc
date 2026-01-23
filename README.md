@@ -139,7 +139,7 @@ FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-25.12.SP2_arm
 https://vastai.github.io/VastModelZOO/
 
 
-## LLM Models （develop 改成tag）
+## LLM Models
 - Deepseek-V3 系列  : [Deepseek-V3系列模型列表]
 
 https://github.com/vastai/VastModelZOO/blob/develop/llm/deepseek_v3/README.md  
