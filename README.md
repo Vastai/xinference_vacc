@@ -31,6 +31,9 @@ https://github.com/xorbitsai/inference/pull/4454
 
 https://github.com/xorbitsai/inference/pull/4486
 
+https://github.com/xorbitsai/inference/pull/4523
+
+
 https://github.com/xorbitsai/xoscar/pull/177
 
 https://github.com/xorbitsai/xoscar/pull/174
