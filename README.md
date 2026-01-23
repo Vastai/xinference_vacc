@@ -8,9 +8,11 @@
 ## 1. 官方支持
 Xinference（Xorbits Inference）是一个性能强大且功能全面的开源分布式推理框架, 旨在简化本地和云端模型的部署与管理, 支持多样化的模型类型（如大语言模型、嵌入模型和多模态模型）和硬件加速（支持CPU、GPU等）。Xinference不仅可以在本地运行推理模型, 还支持在分布式集群环境下高效推理, 可以轻松扩展以处理更大规模的推理任务。
 
-xinference 目前适配了瀚博硬件, 支持使用瀚博硬件设备进行LLM系列、Embedding系列、Rerank系列, VL系列模型的部署和推理。 
+xinference 目前适配了瀚博硬件, 支持使用瀚博硬件设备进行LLM系列、Embedding系列、Rerank系列, VLM系列模型的部署和推理。 
 
-- ✨依赖xinference官方仓库, 零代码修改, 可实现用xinference 平台启动模型在VACC硬件下推理
+- ✨基于Xinference框架，用户无需代码修改即可将模型部署至VACC硬件进行推理。 
+
+Xinference仓库地址：
 https://github.com/xorbitsai/inference
  
 集成具体PR 如下：  
@@ -32,7 +34,6 @@ https://github.com/xorbitsai/inference/pull/4454
 https://github.com/xorbitsai/inference/pull/4486
 
 https://github.com/xorbitsai/inference/pull/4523
-
 
 https://github.com/xorbitsai/xoscar/pull/177
 
@@ -57,13 +58,14 @@ https://github.com/xorbitsai/xoscar/pull/174
 ## 3. 环境准备
 
 > [!TIP]
-> - 步骤`3.1/3.2/3.3`, 可任选其一使用
+> - 步骤`3.1/3.2/3.3`, 用户可根据情况选择其中一种选择。
 
 ### 3.1 从基础镜像安装
 
-- 获取vllm_vacc基础镜像
+- 根据不同架构获取vllm_vacc基础镜像
     ```bash
     sudo docker pull harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-25.12.SP2
+    sudo docker pull harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-25.12.SP2_arm
     ```
 
 - 启动容器
@@ -99,7 +101,6 @@ https://github.com/xorbitsai/xoscar/pull/174
         pip install qwen-vl-utils
         pip install mineru_vl_utils
         pip install -U "mineru[core]==2.7.0"
-
         ```
 
 ### 3.2 编译完整镜像
@@ -154,11 +155,12 @@ https://github.com/xorbitsai/xoscar/pull/174
 > - 需指定适当的`--shm-size`虚拟内存
 
 
-## 4. 目前模型支持情况  
+## 4. 模型列表
 
-针对每个模型的相关说明，在我们开源VastModelZOO里面具体有详细文档。  
+关于每个模型的具体配置信息，如最大上下文长度，输入限制和支持的张量并行度，请查看VastModelZOO 开源仓库中的模型文档：
 
-包括最大上下文，最大输入，模型支持的tp。  
+https://vastai.github.io/VastModelZOO/
+
 
 ## LLM Models
 - DeepSeek-V3/V3.1 系列  
@@ -185,14 +187,14 @@ https://github.com/Vastai/VastModelZOO/blob/develop/nlp/text2vec/qwen3/vllm/READ
 ## VLM Models
 - MinerU2.5-2509-1.2B
 
-https://github.com/Vastai/MinerU/README.md
+https://github.com/Vastai/MinerU/blob/main/README.md
 
 - Qwen3-VL系列
 
 https://github.com/vastai/VastModelZOO/blob/develop/vlm/qwen3_vl/README.md
 
 
-## 用webui 部署 
+## 部署模型 
 
 我们在物理机上面把模型准备好, 映射到容器里面。  
 
@@ -307,34 +309,12 @@ gpu index: GPU ID列表。列表数= TP * instance_nums。
         --http-timeout 1200
         ```
 
-### function call 测试
-对于支持tools 的模型来说, 可以进行function call 测试  
-
-非流式：    
-```{code-block}
-function_call\nonstream_tool_calls.py  
-
-python3 nonstream_tool_calls.py \
---host 127.0.0.1 \
---port 9994 \
---model-name Qwen3-Instruct
-```
-流式：  
-```{code-block}
-function_call\stream_tool_calls.py
-python3 stream_tool_calls.py \
---host 127.0.0.1 \
---port 9994 \
---model-name Qwen3-Instruct
-```
-其中根据需要修改模型名字, 端口号。  
-
 > Note:
 强烈推荐用Webui可视化部署模型, 运行服务稳定, 精度与NVIDIA GPU基本一致。
 
 `launch engine[VLLM]`：VastAI仅支持vLLM后端。   
 
-- 特别说明：
+- Note：
 
 ```bash
 对于text2vec 模型, 尽管xinference 有内部auto batch 的聚合功能, 但在低并发情况下, 性能是要稍低于用Vllm serve 原生方式。  
