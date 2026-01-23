@@ -138,22 +138,40 @@ FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-25.12.SP2_arm
 
 https://vastai.github.io/VastModelZOO/
 
+LLM Models
+Deepseek-R1系列模型列表
+
+Deepseek-R1系列模型列表
+
+Qwen3系列模型列表
+
+Embedding & Rerank Models
+bge系列模型列表
+
+Qwen3系列模型列表
+
+VLM Models
+MinerU2.5-2509-1.2B
+
+Qwen3-VL模型列表
+https://github.com/Vastai/VastModelZOO/blob/develop/llm/deepseek_v3/README.md
 ## LLM Models
-[Deepseek-R1系列模型列表]（https://github.com/vastai/VastModelZOO/blob/develop/llm/deepseek_v3/README.md）  
+[Deepseek-R1系列模型列表](https://github.com/Vastai/VastModelZOO/blob/develop/llm/deepseek_r1/README.md)
 
-[Deepseek-R1系列模型列表]（https://github.com/Vastai/VastModelZOO/blob/develop/llm/deepseek_r1/README.md）
+[Deepseek-V3系列模型列表](https://github.com/Vastai/VastModelZOO/blob/develop/llm/deepseek_v3/README.md)  
 
-[Qwen3系列模型列表]（https://github.com/Vastai/VastModelZOO/blob/develop/llm/qwen3/vllm/README.md）
+
+[Qwen3系列模型列表](https://github.com/Vastai/VastModelZOO/blob/develop/llm/qwen3/vllm/README.md)
 
 ## Embedding && Rerank Models
-[bge系列模型列表]（https://github.com/Vastai/VastModelZOO/blob/develop/nlp/text2vec/bge/vllm/README.md）
+[bge系列模型列表](https://github.com/Vastai/VastModelZOO/blob/develop/nlp/text2vec/bge/vllm/README.md)
 
 [Qwen3系列模型列表](https://github.com/Vastai/VastModelZOO/blob/develop/llm/qwen3/vllm/README.md#%E6%A8%A1%E5%9E%8B%E6%94%AF%E6%8C%81)
 
 ## VLM Models
-[MinerU2.5-2509-1.2B]（https://github.com/Vastai/MinerU/blob/main/README.md）
+[MinerU2.5-2509-1.2B](https://github.com/Vastai/MinerU/blob/main/README.md)
 
-[Qwen3-VL模型列表]（https://github.com/vastai/VastModelZOO/blob/develop/vlm/qwen3_vl/README.md#%E6%A8%A1%E5%9E%8B%E6%94%AF%E6%8C%81）
+[Qwen3-VL模型列表](https://github.com/vastai/VastModelZOO/blob/develop/vlm/qwen3_vl/README.md#%E6%A8%A1%E5%9E%8B%E6%94%AF%E6%8C%81)
 
 
 ## 部署模型 
