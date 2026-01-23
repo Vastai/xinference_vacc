@@ -134,27 +134,8 @@ FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-25.12.SP2_arm
 
 关于每个模型的具体配置信息，如最大上下文长度，输入限制和支持的张量并行度。
 
-请查看VastModelZOO 开源仓库中的模型文档：
+请查看VastModelZOO 开源仓库的[模型网站](https://vastai.github.io/VastModelZOO)
 
-https://vastai.github.io/VastModelZOO/
-
-LLM Models
-Deepseek-R1系列模型列表
-
-Deepseek-R1系列模型列表
-
-Qwen3系列模型列表
-
-Embedding & Rerank Models
-bge系列模型列表
-
-Qwen3系列模型列表
-
-VLM Models
-MinerU2.5-2509-1.2B
-
-Qwen3-VL模型列表
-https://github.com/Vastai/VastModelZOO/blob/develop/llm/deepseek_v3/README.md
 ## LLM Models
 [Deepseek-R1系列模型列表](https://github.com/Vastai/VastModelZOO/blob/develop/llm/deepseek_r1/README.md)
 
