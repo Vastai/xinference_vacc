@@ -176,19 +176,12 @@ Note: 启动xinference-local时如果需指定程序可见的GPU列表，可通�
 强烈推荐用Webui可视化部署模型, 运行服务稳定, 精度与NVIDIA GPU基本一致。
 
 - Note：
+针对Text2vec模型，虽然Xinference具备内置的自动批处理聚合功能，但在低并发场景下的性能仍略低于直接使用VLLM原生服务方式。
 
-```bash
-对于text2vec 模型, 尽管xinference 有内部auto batch 的聚合功能, 但在低并发情况下, 性能是要稍低于用Vllm serve 原生方式。  
+主要原因是vLLM社区目前未对Text2vec类模型提供异步引擎（asyncEngine）的generate接口，因此只能以同步LLM方式启动。这一问题与硬件无关，即使使用CPU也可观察到核心利用率存在差异。
 
-原因是Vllm 社区, 对于text2vec 模型, vllm asyncEngine 对外没有暴露类似于generate的接口。   
+具体技术细节可参考相关issue：https://github.com/xorbitsai/inference/issues/4418
 
-只能用同步的LLM 方式启动的。这个和显卡无关, 这个在CPU上cores 利用率也有一点差异。  
+此外，Xinference中通过`enable_xavier=True`启用的VLLM多副本共享KV缓存功能，目前仅支持英伟达硬件平台。
 
-具体参见issue:
-https://github.com/xorbitsai/inference/issues/4418
-
-enable_xavier=True
-xinference 这个VLLM 多副本共享KV cache 功能目前只针对英伟达产品生效。
-
-```
  
