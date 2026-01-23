@@ -192,26 +192,7 @@ https://github.com/Vastai/MinerU/README.md
 https://github.com/vastai/VastModelZOO/blob/develop/vlm/qwen3_vl/README.md
 
 
-## 用webui 部署
-在xinference 中，对应的模型名字是不可以更改的。哪怕是大小写, 改了启动会有问题。  
-
-可以根据模型类别，去进行搜索。  
-
-| 模型名字 | 模型目录| 
-|-------|-------|
-| deepseek-v3 | DeepSeek-V3、DeepSeek-V3-0324 | 
-| deepseek-r1 | DeepSeek-R1、DeepSeek-R1-0528 |
-| DeepSeek-V3.1 |DeepSeek-V3.1-Terminus、DeepSeek-V3.1 |
-| qwen3 | Qwen3-14B-FP8、Qwen3-14B-AWQ、Qwen3-14B-GPTQ-Int4、Qwen3-30B-A3B-FP8、Qwen3-30B-A3B-GPTQ-Int4、 Qwen3-32B-FP8、Qwen3-32B-AWQ、Qwen3-235B-A22B-FP8|
-| Qwen3-Instruct | Qwen3-30B-A3B-Instruct-2507-FP8、Qwen3-235B-A22B-Instruct-2507 |
-| Qwen3-Thinking | Qwen3-30B-A3B-Thinking-2507-FP8, Qwen3-235B-A22B-Thinking-2507 |
-| Qwen3-VL-Instruct | Qwen3-VL-30B-A3B-Instruct-FP8 |
-| Qwen3-VL-Thinking | Qwen3-VL-30B-A3B-Thinking-FP8 |
-| Qwen3-Embedding-0.6B| Qwen3-Embedding-0.6B|
-| Qwen3-Reranker-0.6B | Qwen3-Reranker-0.6B |
-| bge-m3 | bge-m3 |
-| bge-reranker-v2-m3 | bge-reranker-v2-m3 |
-| MinerU2.5-2509-1.2B | MinerU2.5-2509-1.2B | 
+## 用webui 部署 
 
 我们在物理机上面把模型准备好, 映射到容器里面。  
 
