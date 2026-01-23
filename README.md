@@ -160,7 +160,6 @@ https://github.com/Vastai/VastModelZOO/blob/develop/llm/deepseek_v3/README.md
 
 [Deepseek-V3系列模型列表](https://github.com/Vastai/VastModelZOO/blob/develop/llm/deepseek_v3/README.md)  
 
-
 [Qwen3系列模型列表](https://github.com/Vastai/VastModelZOO/blob/develop/llm/qwen3/vllm/README.md)
 
 ## Embedding && Rerank Models
