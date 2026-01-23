@@ -154,46 +154,43 @@ https://github.com/xorbitsai/xoscar/pull/174
 > - 需指定适当的`--shm-size`虚拟内存
 
 
-## 4. 目前支持情况以及相关部署脚本样例
+## 4. 目前模型支持情况  
+
+针对每个模型的相关说明，在我们开源VastModelZOO里面具体有详细文档。  
+
+包括最大上下文，最大输入，模型支持的tp。  
+
 ## LLM Models
-- DeepSeek-V3
-- DeepSeek-V3-0324
-- DeepSeek-V3.1
-- DeepSeek-V3.1-Terminus
-- DeepSeek-R1
-- DeepSeek-R1-0528
-- Qwen3-14B-FP8
-- Qwen3-14B-AWQ
-- Qwen3-14B-GPTQ-Int4
-- Qwen3-32B-FP8
-- Qwen3-32B-AWQ
-- Qwen3-30B-A3B-FP8
-- Qwen3-30B-A3B-Instruct-2507-FP8
-- Qwen3-30B-A3B-Thinking-2507-FP8
-- Qwen3-235B-A22B-Instruct-2507
-- Qwen3-235B-A22B-Thinking-2507
+- DeepSeek-V3/V3.1 系列  
+
+https://github.com/vastai/VastModelZOO/blob/develop/llm/deepseek_v3/README.md  
+
+- DeepSeek-R1系列
+
+https://github.com/Vastai/VastModelZOO/blob/develop/llm/deepseek_r1/README.md
+
+- Qwen3 系列
+
+https://github.com/Vastai/VastModelZOO/blob/develop/llm/qwen3/vllm/README.md
+
+## Embedding && Rerank Models
+- bge 系列
+
+https://github.com/Vastai/VastModelZOO/blob/develop/nlp/text2vec/bge/vllm/README.md
+
+- Qwen3 系列
+
+https://github.com/Vastai/VastModelZOO/blob/develop/nlp/text2vec/qwen3/vllm/README.md
+
+## VLM Models
 - MinerU2.5-2509-1.2B
-## Embedding Models
-- bge-m3
-- Qwen3-0.6B-Embedding
-## Rerank Models
-- bge-reranker-v2-m3
-- Qwen3-0.6B-Rerank
-## VL Models
-- Qwen3-VL-30B-A3B-Instruct-FP8
-- Qwen3-VL-30B-A3B-Thinking-FP8
-## 附录表格
-| 模型 | tensor parallel size(启动单实例) |
-|------------|-------|
-| DS Familiy | tp32 | 
-| Qwen3 235B | tp16 | 
-| Qwen3 14B  | tp4, tp8 |
-| Qwen3 14B GPTQ Int4 | tp2, tp4, tp8 |
-| Qwen3 30B  | tp2, tp4 | 
-| Qwen3 32B  | tp4, tp8 | 
-| text2vec  |  tp1, tp2, tp4 |  
-| Qwen3-VL  | tp2, tp4 | 
-| MinerU2.5-2509-1.2B | tp2 | 
+
+https://github.com/Vastai/MinerU/README.md
+
+- Qwen3-VL系列
+
+https://github.com/vastai/VastModelZOO/blob/develop/vlm/qwen3_vl/README.md
+
 
 ## 用webui 部署
 在xinference 中，对应的模型名字是不可以更改的。哪怕是大小写, 改了启动会有问题。  
@@ -329,24 +326,6 @@ gpu index: GPU ID列表。列表数= TP * instance_nums。
         --http-timeout 1200
         ```
 
-## 备注
-针对Qwen3 235B系列, tp16 可以支持最大输入100K。  
-需要环境变量
-```bash  
-export LLM_MAX_PREFILL_SEQ_LEN=102400  
-```
-
-针对DS 系列, 非MTP模式下, 可以支持最大输入100K。  
-
-其中tp 32, pipeline data size 2。 【相当于把64个dies 都占满】  
-
-并且需要环境变量  
-```bash
-export LLM_MAX_PREFILL_SEQ_LEN=102400  
-
-export FUSE_ALL_DECODER_LAYERS=0
-```
-
 ### function call 测试
 对于支持tools 的模型来说, 可以进行function call 测试  
 
@@ -369,73 +348,10 @@ python3 stream_tool_calls.py \
 ```
 其中根据需要修改模型名字, 端口号。  
 
-
-### 模型最大输入和最大上下文长度限制
-
-针对DeepSeek-V3/R1/V3.1系列模型：
-```bash
-非MTP（Multi-Token Prediction）模式：最大输入长度为 100K，最大上下文长度为128K。
-
-MTP模式：最大输入长度为 56K，最大上下文长度为 64K。
-```
-
-针对Qwen3/Qwen3-VL系列模型：
-```bash
-如果模型为 Qwen3 30B 系列模型，TP 支持 2 或 4。如果 TP 为 2，最大输入长度为 56K，最大上下文长度为 64K。  
-
-如果 TP为 4，最大输入长度为 56K，最大上下文长度为 128K。
-
-如果模型为 Qwen3 235B 系列模型，TP仅支持 16，此时，最大输入长度为 100K，最大上下文长度为 128K。
-```
-
-针对 Embedding/Rerank模型：
-```bash
-  bge-m3, bge-reranker-v2-m3 最大长度8192。    
-
-  Qwen3-Embedding-0.6B 最大长度 32768, Qwen3-Rerank-0.6B 默认最大长度 40960。  
-```
-
-针对 MinerU2.5-2509-1.2B：
-```bash
-   MinerU2.5-2509-1.2B 只支持tp2, 最大长度16384。
-```
-
-DeepSeek-V3/R1/V3.1系列模型最低配置要求：
-```bash
-非MTP模式：最大输入长度为 100K时，硬件最低配置要求为单台 VA16（16*128G）服务器。最大输入长度为 56K时，硬件最低配置要求为单台 VA16（8*128G）服务器。
-
-MTP模式：硬件最低配置要求为单台 VA16（8*128G）服务器。
-
-模型同时支持最大并发数为 4。
-
-对于超出上下文长度的请求，服务端会拦截不做处理，客户端需自行校验请求长度。
-```
-
-### vllm config 字段
 > Note:
 强烈推荐用Webui可视化部署模型, 运行服务稳定, 精度与NVIDIA GPU基本一致。
 
 `launch engine[VLLM]`：VastAI仅支持vLLM后端。   
-
-部署时候, 根据需要填写vllm config。  
-
-对于DS 系列, 如果要开启MTP, 就需要填充字段speculative_config。   
-
-![Alt text](./images/index/image-5.png)  
-
-如果模型原生支持扩充上下文, 可以填充字段rope_scaling。  
-
-![Alt text](./images/index/image-6.png)  
-
-| 目前常用的vllm config | 含义| 
-|-------|-------|
-| tensor_parallel_size | 张量并行数 | 
-| enforce_eager | True |
-| max_model_len |模型最大上下文 |
-| speculative_config | MTP 功能是否开启。例子: {'method': 'deepseek_mtp', 'num_speculative_tokens': 1} | 
-| rope_scaling| 是否拓展最大上下文。例子： {'rope_type': 'yarn', 'factor': 4.0, 'original_max_position_embeddings': 32768} |
-
-注意在部署时需`enforce_eager：True`参数。 
 
 - 特别说明：
 
@@ -450,8 +366,7 @@ MTP模式：硬件最低配置要求为单台 VA16（8*128G）服务器。
 https://github.com/xorbitsai/inference/issues/4418
 
 enable_xavier=True
-xinference 这个功能目前只针对英伟达产品生效。
-
+xinference 这个VLLM 多副本共享KV cache 功能目前只针对英伟达产品生效。
 
 ```
  
