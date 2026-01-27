@@ -203,5 +203,8 @@ Note: 启动xinference-local时如果需指定程序可见的GPU列表，可通�
 具体技术细节可参考相关issue：https://github.com/xorbitsai/inference/issues/4418
 
 此外，Xinference中通过`enable_xavier=True`启用的VLLM多副本共享KV缓存功能，目前仅支持英伟达硬件平台。
+详细可以官网。
+[Xinference 关于Xavier说明](https://inference.readthedocs.io/zh-cn/latest/getting_started/using_xinference.html#run-xinference-locally)。
+
 
  
