@@ -6,9 +6,12 @@
 - 模型中心：https://github.com/Vastai/VastModelZOO
 
 ## 2. 官方支持
-Xinference（Xorbits Inference）是一个性能强大且功能全面的开源分布式推理框架, 旨在简化本地和云端模型的部署与管理, 支持多样化的模型类型（如大语言模型、嵌入模型和多模态模型）和硬件加速（支持CPU、GPU等）。Xinference不仅可以在本地运行推理模型, 还支持在分布式集群环境下高效推理, 可以轻松扩展以处理更大规模的推理任务。
+
+Xinference（Xorbits Inference）[Copyright © 2022-2023 XProbe Inc.] 是一个性能强大且功能全面的开源分布式推理框架, 旨在简化本地和云端模型的部署与管理, 支持多样化的模型类型（如大语言模型、嵌入模型和多模态模型）和硬件加速（支持CPU、GPU等）。Xinference不仅可以在本地运行推理模型, 还支持在分布式集群环境下高效推理, 可以轻松扩展以处理更大规模的推理任务。
+Xinference采用 Apache License 2.0。[license-xinference](https://inference.readthedocs.io/zh-cn/latest/getting_started/installation.html)
 
 xinference 目前适配了瀚博硬件, 支持使用瀚博硬件设备进行LLM系列、Embedding系列、Rerank系列, VLM系列模型的部署和推理。
+Xinference_vacc 项目是针对这个集成，帮助用户更好的使用瀚博半导体的产品，并且更加完备的介绍瀚博对于Xinference社区的共享。
 
 - ✨基于Xinference框架，用户无需代码修改即可将模型部署至VACC硬件进行推理。VastAI仅支持vLLM engine启动。 
 
@@ -39,6 +42,7 @@ https://github.com/xorbitsai/xoscar/pull/177
 
 https://github.com/xorbitsai/xoscar/pull/174
 
+Additional components and integrations: Copyright © 2024-2025 vastaitech.
 
 ## 3. 测试平台
 
