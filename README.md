@@ -7,13 +7,13 @@
 
 ## 2. 官方支持
 
-Xinference（Xorbits Inference）[Copyright © 2022-2023 XProbe Inc.] 是一个性能强大且功能全面的开源分布式推理框架, 旨在简化本地和云端模型的部署与管理, 支持多样化的模型类型（如大语言模型、嵌入模型和多模态模型）和硬件加速（支持CPU、GPU等）。Xinference不仅可以在本地运行推理模型, 还支持在分布式集群环境下高效推理, 可以轻松扩展以处理更大规模的推理任务。
-Xinference采用 Apache License 2.0。[license-xinference](https://inference.readthedocs.io/zh-cn/latest/getting_started/installation.html)
+Xinference（Xorbits Inference）【Copyright © 2022-2023 XProbe Inc.】是一个性能强大且功能全面的开源分布式推理框架, 旨在简化本地和云端模型的部署与管理, 支持多样化的模型类型（如大语言模型、嵌入模型和多模态模型）和硬件加速（支持CPU、GPU等）。Xinference不仅可以在本地运行推理模型, 还支持在分布式集群环境下高效推理, 可以轻松扩展以处理更大规模的推理任务。
+
 
 xinference 目前适配了瀚博硬件, 支持使用瀚博硬件设备进行LLM系列、Embedding系列、Rerank系列, VLM系列模型的部署和推理。
 Xinference_vacc 项目是针对这个集成，帮助用户更好的使用瀚博半导体的产品，并且更加完备的介绍瀚博对于Xinference社区的共享。
 
-- ✨基于Xinference框架，用户无需代码修改即可将模型部署至VACC硬件进行推理。VastAI仅支持vLLM engine启动。 
+✨基于Xinference框架，用户无需代码修改即可将模型部署至VACC硬件进行推理。VastAI仅支持vLLM engine启动。 
 
 Xinference仓库地址：
 https://github.com/xorbitsai/inference
@@ -138,7 +138,7 @@ FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-25.12.SP2_arm
 
 关于每个模型的具体配置信息，如最大上下文长度，输入限制和支持的张量并行度。
 
-请查看VastModelZOO 开源仓库的[模型网站](https://vastai.github.io/VastModelZOO)
+请查看VastModelZOO 开源仓库的[模型网站](https://vastai.github.io/VastModelZOO)和[模型使用限制](https://github.com/Vastai/VastModelZOO/blob/develop/docs/vllm/usage_limits.md)
 
 ## LLM Models
 [Deepseek-R1系列模型列表](https://github.com/Vastai/VastModelZOO/blob/develop/llm/deepseek_r1/README.md)
@@ -190,21 +190,16 @@ Note: 启动xinference-local时如果需指定程序可见的GPU列表，可通�
 
 5. 浏览器输入 `http://${xinference_host}:port`即可部署模型。详细可参考[Xorbits Inference 手册](https://github.com/xorbitsai/inference/blob/main/README_zh_CN.md)  。
 
-等待xinference-local 启动好后, 我们用webui 方式部署模型。
- 
-> Note:
+
 强烈推荐用Webui可视化部署模型, 运行服务稳定, 精度与NVIDIA GPU基本一致。
 
-- Note：
-针对Text2vec模型，虽然Xinference具备内置的自动批处理聚合功能，但在低并发场景下的性能仍略低于直接使用VLLM原生服务方式。
-
-主要原因是vLLM社区目前未对Text2vec类模型提供异步引擎（asyncEngine）的generate接口，因此只能以同步LLM方式启动。这一问题与硬件无关，即使使用CPU也可观察到核心利用率存在差异。
-
-具体技术细节可参考相关issue：https://github.com/xorbitsai/inference/issues/4418
-
 此外，Xinference中通过`enable_xavier=True`启用的VLLM多副本共享KV缓存功能，目前仅支持英伟达硬件平台。
-详细可以官网。
+详细可以参考。
 [Xinference 关于Xavier说明](https://inference.readthedocs.io/zh-cn/latest/getting_started/using_xinference.html#run-xinference-locally)。
 
 
- 
+## 声明
+- `Xinference`采用 Apache License 2.0。[license-xinference](https://inference.readthedocs.io/zh-cn/latest/getting_started/installation.html)
+- `Xinference_vacc`遵循[Apache 2.0](LICENSE)许可证许可
+- Additional components and integrations: Copyright © 2024-2025 vastaitech.
+
