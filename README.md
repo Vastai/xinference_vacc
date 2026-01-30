@@ -42,7 +42,6 @@ https://github.com/xorbitsai/xoscar/pull/177
 
 https://github.com/xorbitsai/xoscar/pull/174
 
-Additional components and integrations: Copyright © 2024-2025 vastaitech.
 
 ## 3. 测试平台
 
@@ -136,26 +135,7 @@ FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-25.12.SP2_arm
 
 ## 5. 模型列表
 
-关于每个模型的具体配置信息，如最大上下文长度，输入限制和支持的张量并行度。
-
-请查看VastModelZOO 开源仓库的[模型网站](https://vastai.github.io/VastModelZOO)和[模型使用限制](https://github.com/Vastai/VastModelZOO/blob/develop/docs/vllm/usage_limits.md)
-
-## LLM Models
-[Deepseek-R1系列模型列表](https://github.com/Vastai/VastModelZOO/blob/develop/llm/deepseek_r1/README.md)
-
-[Deepseek-V3系列模型列表](https://github.com/Vastai/VastModelZOO/blob/develop/llm/deepseek_v3/README.md)  
-
-[Qwen3系列模型列表](https://github.com/Vastai/VastModelZOO/blob/develop/llm/qwen3/vllm/README.md)
-
-## Embedding && Rerank Models
-[bge系列模型列表](https://github.com/Vastai/VastModelZOO/blob/develop/nlp/text2vec/bge/vllm/README.md)
-
-[Qwen3系列模型列表](https://github.com/Vastai/VastModelZOO/blob/develop/llm/qwen3/vllm/README.md#%E6%A8%A1%E5%9E%8B%E6%94%AF%E6%8C%81)
-
-## VLM Models
-[MinerU2.5-2509-1.2B](https://github.com/Vastai/MinerU/blob/main/README.md)
-
-[Qwen3-VL模型列表](https://github.com/vastai/VastModelZOO/blob/develop/vlm/qwen3_vl/README.md#%E6%A8%A1%E5%9E%8B%E6%94%AF%E6%8C%81)
+关于支持的模型以及每个模型的具体配置信息，如最大上下文长度，输入限制和支持的张量并行度, 请查看[模型使用限制](https://github.com/Vastai/VastModelZOO/blob/develop/docs/vllm/usage_limits.md)。
 
 
 ## 部署模型 
@@ -199,7 +179,7 @@ Note: 启动xinference-local时如果需指定程序可见的GPU列表，可通�
 
 
 ## 声明
-- `Xinference`采用 Apache License 2.0。[license-xinference](https://inference.readthedocs.io/zh-cn/latest/getting_started/installation.html)
-- `Xinference_vacc`遵循[Apache 2.0](LICENSE)许可证许可
+- `Xinference`采用[Apache License 2.0](https://inference.readthedocs.io/zh-cn/latest/getting_started/installation.html)。
+- `Xinference_vacc`遵循[Apache 2.0](LICENSE)许可证许可。
 - Additional components and integrations: Copyright © 2024-2025 vastaitech.
 
