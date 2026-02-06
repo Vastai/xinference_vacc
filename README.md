@@ -97,6 +97,7 @@ https://github.com/xorbitsai/xoscar/pull/174
         export XINFERENCE_SSE_PING_ATTEMPTS_SECONDS=864000
         export VLLM_ENGINE_ITERATION_TIMEOUT_S=864000
         export XOSCAR_CPU_AFFINITY=1
+        export XINFERENCE_ENABLE_VIRTUAL_ENV=0
         export XINFERENCE_RERANK_EMPTY_CACHE_COUNT=200
         export XINFERENCE_EMBEDDING_EMPTY_CACHE_COUNT=200
         export XINFERENCE_EMBEDDING_EMPTY_CACHE_TOKENS=81920  
@@ -135,7 +136,7 @@ FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-25.12.SP2_arm
 
 ## 5. 模型列表
 
-关于支持的模型以及每个模型的具体配置信息，如最大上下文长度，输入限制和支持的张量并行度, 请查看[模型使用限制](https://github.com/Vastai/VastModelZOO/blob/develop/docs/vllm/usage_limits.md)。
+关于支持的模型以及每个模型的具体配置信息，如最大上下文长度, 输入限制和支持的张量并行度, 请查看[模型使用限制](https://github.com/Vastai/VastModelZOO/blob/develop/docs/vllm/usage_limits.md)。
 
 
 ## 部署模型 
@@ -166,7 +167,7 @@ FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-25.12.SP2_arm
  ```
 Xinference启动方式详细可参考[Xinference 入门指南](https://inference.readthedocs.io/zh-cn/latest/getting_started/using_xinference.html#run-xinference-locally)。
 
-Note: 启动xinference-local时如果需指定程序可见的GPU列表，可通过`VACC_VISIBLE_DEVICES`进行设置。例如：`VACC_VISIBLE_DEVICES=“0,1,2,3”`。
+Note: 可通过环境变量 `VACC_VISIBLE_DEVICES` 指定容器内可见的Die 列表，其功能与 NVIDIA 环境中的 CUDA_VISIBLE_DEVICES 相同。例如，启动容器时使用 -e VACC_VISIBLE_DEVICES=0,1,2,3。 即可使容器仅识别并使用前四个Die。为保障 vLLM 框架在多进程数据加载与通信时的稳定性，可通过 --shm-size 参数为容器分配充足的共享内存（Shared Memory）。
 
 5. 浏览器输入 `http://${xinference_host}:port`即可部署模型。详细可参考[Xorbits Inference 手册](https://github.com/xorbitsai/inference/blob/main/README_zh_CN.md)  。
 
