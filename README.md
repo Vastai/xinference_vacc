@@ -36,7 +36,7 @@ https://github.com/xorbitsai/inference/pull/4454
 
 https://github.com/xorbitsai/inference/pull/4486
 
-https://github.com/xorbitsai/inference/pull/4523
+https://github.com/xorbitsai/inference/pull/4569
 
 https://github.com/xorbitsai/xoscar/pull/177
 
@@ -66,7 +66,7 @@ https://github.com/xorbitsai/xoscar/pull/174
 ### 4.1 基于基础镜像制作Xinference
 > [!NOTE]
 > - `vllm_vacc`基础镜像内已包含`torch/vllm`等相关依赖
-> - `xinference`目前最新版本是`2.0.0`
+> - `xinference`目前最新版本是`2.1.0`
 > - 需指定适当的`--shm-size`虚拟内存
 
 1. 根据不同架构获取vllm_vacc基础镜像
@@ -104,7 +104,7 @@ https://github.com/xorbitsai/xoscar/pull/174
 
         # 通过轮子包安装
         pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-        pip install xinference==2.0.0
+        pip install xinference==2.1.0
         pip install qwen_omni_utils
         pip install qwen-vl-utils
         pip install mineru_vl_utils
