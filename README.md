@@ -71,8 +71,8 @@ https://github.com/xorbitsai/xoscar/pull/174
 
 1. 根据不同架构获取vllm_vacc基础镜像
     ```bash
-    sudo docker pull harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-25.12.SP2
-    sudo docker pull harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-25.12.SP2_arm
+    sudo docker pull harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-26.02
+    sudo docker pull harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-26.02_arm
     ```
 
 2. 启动容器
@@ -83,7 +83,7 @@ https://github.com/xorbitsai/xoscar/pull/174
         --name vllm_service \
         --ipc=host \
         --network=host \
-        harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-25.12.SP2 bash
+        harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-26.02 bash
     ```
 
 3. 安装Xinference
@@ -104,7 +104,7 @@ https://github.com/xorbitsai/xoscar/pull/174
 
         # 通过轮子包安装
         pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-        pip install xinference==2.1.0
+        pip install xinference
         pip install qwen_omni_utils
         pip install qwen-vl-utils
         pip install mineru_vl_utils
@@ -118,11 +118,11 @@ https://github.com/xorbitsai/xoscar/pull/174
   
   ```bash
   cd dockerfile
-  sudo docker build -t xinference_vacc:VVI-25.12.SP2 .
+  sudo docker build -t xinference_vacc:VVI-26.02 .
   ```
 如果使用arm架构，需要先修改Dockerfile 的基础镜像。
   ```bash
-FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-25.12.SP2_arm
+FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-26.02_arm
   ```
 
 ### 4.3 拉取完整镜像
@@ -130,8 +130,8 @@ FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-25.12.SP2_arm
 根据不同的架构，拉取完整镜像
 
   ```bash
-  sudo docker pull harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP2
-  sudo docker pull harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP2_arm
+  sudo docker pull harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-26.02
+  sudo docker pull harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-26.02_arm
   ```
 
 ## 5. 模型列表
@@ -153,7 +153,7 @@ FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-25.12.SP2_arm
       --ipc=host \
       --network=host \
       --entrypoint bash \
-      harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-25.12.SP2 
+      harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-26.02 
   ```
 3. 使用screen工具查看日志。
 
