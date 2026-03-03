@@ -169,7 +169,72 @@ Xinference启动方式详细可参考[Xinference 入门指南](https://inference
 
 Note: 可通过环境变量 `VACC_VISIBLE_DEVICES` 指定容器内可见的Die 列表，其功能与 NVIDIA 环境中的 CUDA_VISIBLE_DEVICES 相同。例如，启动容器时使用 -e VACC_VISIBLE_DEVICES=0,1,2,3。 即可使容器仅识别并使用前四个Die。为保障 vLLM 框架在多进程数据加载与通信时的稳定性，可通过 --shm-size 参数为容器分配充足的共享内存（Shared Memory）。
 
-5. 浏览器输入 `http://${xinference_host}:port`即可部署模型。详细可参考[Xorbits Inference 手册](https://github.com/xorbitsai/inference/blob/main/README_zh_CN.md)  。
+5. 浏览器输入 `http://${xinference_host}:port`即可部署模型。详细可参考[Xorbits Inference 手册](https://github.com/xorbitsai/inference/blob/main/README_zh_CN.md)。
+
+
+## 部署说明
+等待xinference-local 启动好后, 我们用webui 方式部署。  
+
+举例说明 Embedding bge-m3, 部署方式用tp1, 单副本, 部署在 die 0 上面。注意填写好模型在容器的目录。
+
+![Alt text](./images/index/image-1.png)
+![Alt text](./images/index/image-2.png)
+这里注意要传递tensor_parallel_size 1, 和启动模型最大长度8192
+![Alt text](./images/index/image-3.png)
+然后可以查看状态
+![Alt text](./images/index/image-4.png)
+
+1. 多副本
+
+如果要部署多个replica, 选择的tp 模式要和gpu index对齐。  
+
+假如bge-m3 要部署2个副本, tp 2 的方式, 那么gpu index 需要写四个, 比如4,5,6,7。  
+
+规则如下：  
+  gpu index: GPU ID列表。列表数= TP * instance_nums。  
+
+  如果是TP=2, instance_nums=2, 列表数= 2 * instance_nums, 可设置为 0,1,2,3。  
+
+  如果是TP=4,  instance_nums=2, 列表数= 2 * instance_nums, 可设置为 0,1,2,3,4,5,6,7。  
+
+  如果是TP=16, instance_nums=1, 列表数= 1 * instance_nums, 可设置为 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15。  
+
+对于有些情况下, 比如您想从gpu index 0开始启动, 可以直接写GPU_counter per worker 然后配上副本数, 也可以生效。  
+![Alt text](./images/index/image.png)  
+这样的话, 您就不用手敲了。  
+
+相当于, gpu indexs 为  
+
+0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,  
+
+33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63。  
+
+但是假如您想要在特定某些gpu index加载模型, 那就要指定填写了, 并且需要保证gpu index 的连续性。  
+
+
+2. hybrid模型：  
+
+  假如我们要启动一个Deepseek-V3.1 模型。  
+  他是hybrid【可以选择开启或者不开思考模式】。  
+  开启思考的话, 也可以选择是否要开启parse reasoning content【从输出中提取思考内容】。
+  ![Alt text](./images/index/image-7.png)
+
+  启动vllm config 如下:  
+
+  tensor_parallel_size: 张量并行数 
+  enforce_eager: true  
+  max_model_len: 模型最大上下文  
+  max_num_seqs: 单例模型支持的最大并发数。vllm_vacc 对于LLM/VLM 模型是4。 
+
+3. 特殊配置：
+
+对于DS 系列, 如果要开启MTP, 就需要填充字段speculative_config。  
+  speculative_config:{'method': 'deepseek_mtp', 'num_speculative_tokens': 1}
+  ![Alt text](./images/index/image-5.png)
+
+对于Qwen3 hybrid 系列： 如果模型原生支持扩充上下文。可以填充字段rope_scaling。 
+  rope_scaling:{'rope_type': 'yarn', 'factor': 4.0, 'original_max_position_embeddings': 32768}
+  ![Alt text](./images/index/image-6.png)
 
 
 强烈推荐用Webui可视化部署模型, 运行服务稳定, 精度与NVIDIA GPU基本一致。
