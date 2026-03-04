@@ -310,7 +310,7 @@ Note: 可通过环境变量 `VACC_VISIBLE_DEVICES` 指定容器内可见的Die �
  ```
 Note: 可通过环境变量 `VACC_VISIBLE_DEVICES` 指定容器内可见的Die 列表，其功能与 NVIDIA 环境中的 CUDA_VISIBLE_DEVICES 相同。例如，启动容器时使用 -e VACC_VISIBLE_DEVICES=0,1,2,3。 即可使容器仅识别并使用前四个Die。为保障 vLLM 框架在多进程数据加载与通信时的稳定性，可通过 --shm-size 参数为容器分配充足的共享内存（Shared Memory）。
 
-7. 浏览器输入 `http://${xinference_supervisor}:port`即可通过webui部署模型。我们有四个worker, 所以副本选择4。填好模型路径和相关配置，耐心等待，模型就会在两台机器上启动了。每个worker 会加载自己的模型实例。
+7. 浏览器输入 `http://10.24.73.25:9997`即可通过webui部署模型。我们有四个worker, 对应四个副本。填好模型路径和相关配置，耐心等待，模型就会在两台机器上启动了。每个worker 会加载自己的模型实例。
 详细可参考[Xorbits Inference 手册](https://github.com/xorbitsai/inference/blob/main/README_zh_CN.md)。
 
 强烈推荐用Webui可视化部署模型, 运行服务稳定, 精度与NVIDIA GPU基本一致。
