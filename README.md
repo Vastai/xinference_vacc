@@ -211,16 +211,14 @@ Note: 可通过环境变量 `VACC_VISIBLE_DEVICES` 指定容器内可见的Die �
 
 但是假如您想要在特定某些gpu index加载模型, 那就要指定填写了, 并且需要保证gpu index 的连续性。  
 
-
 2. hybrid模型：  
 
-  假如我们要启动一个Deepseek-V3.1 模型。  
+假如我们要启动一个Deepseek-V3.1 模型。  
   他是hybrid【可以选择开启或者不开思考模式】。  
   开启思考的话, 也可以选择是否要开启parse reasoning content【从输出中提取思考内容】。
   ![Alt text](./images/index/image-7.png)
 
-  启动vllm config 如下:  
-
+启动vllm config 如下:  
   tensor_parallel_size: 张量并行数 
   enforce_eager: true  
   max_model_len: 模型最大上下文  
@@ -236,6 +234,84 @@ Note: 可通过环境变量 `VACC_VISIBLE_DEVICES` 指定容器内可见的Die �
   rope_scaling:{'rope_type': 'yarn', 'factor': 4.0, 'original_max_position_embeddings': 32768}
   ![Alt text](./images/index/image-6.png)
 
+
+## 部署集群 
+条件：
+假设我们有两台机器，分别是10.24.73.25/10.24.73.23, 每台机器都满足条件, 镜像，模型已经准备好，16张VA16。
+一台作为主集群入口（supervisor进程的 webui 入口）, 另一台是worker 进程加载模型。
+
+我们想要加载4个Deepseek-V3.1-terminus 模型服务，并通过一个supervisor入口来调度请求。 
+这里，我们选择在10.24.73.25 启动 supervisor + 2worker 进程，并选择9997端口作为supervisor 入口。
+我们要在10.24.73.25执行启动容器命令。这时，这台机器并没有加载模型。只是启动了supervisor + 2worker 进程。
+
+1. 10.24.73.25 启动容器并映射模型所在路径。
+  ```bash
+  sudo docker run -it \
+      --privileged=true \
+      -v /models:/models \
+      --shm-size=256g \
+      --name xinference_supervisor \
+      --ipc=host \
+      --network=host \
+      --entrypoint bash \
+      harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-26.02 
+  ```
+2. 使用screen工具查看日志。
+
+ ```bash
+  screen -S xinference_supervisor
+ ```
+
+3. 启动xinference-supervisor，假设端口为9997, 以及两个worker 进程。可以写一个bash 脚本把这些命令打包一起。
+ ```bash
+    echo "=================== start run supervisor ========================="
+    xinference-supervisor -H 10.24.73.25 -p 9997 & 2>&1 | tee xinference.log &
+    until curl -s http://10.24.73.25:9997/status; do
+      sleep 5
+    done
+
+    echo "==================== STARTING WORKERS ========================="
+    
+    echo "==================== STARTING WORKERS 1 ========================="
+    VACC_VISIBLE_DEVICES='0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31'  xinference-worker -H 10.24.73.25 -e http://10.24.73.25:9997 &
+    sleep 10
+
+    echo "==================== STARTING WORKERS 2========================="
+    VACC_VISIBLE_DEVICES='32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63'  xinference-worker -H 10.24.73.25 -e http://10.24.73.25:9997 &
+    sleep 10
+ ```
+
+4. 另一台 10.24.73.23 启动容器并映射模型所在路径。(保证两个容器内，模型所在的映射路径是相同的，比如都是/models/Deepseek，否则启动会失败)
+  ```bash
+  sudo docker run -it \
+      --privileged=true \
+      -v /models:/models \
+      --shm-size=256g \
+      --name xinference_worker \
+      --ipc=host \
+      --network=host \
+      --entrypoint bash \
+      harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-26.02 
+  ```
+5. 使用screen工具查看日志。
+
+ ```bash
+  screen -S xinference_worker
+ ```
+6. 在另一台机器 10.24.73.23 启动两个worker 进程，并绑定到这个supervisor。 可以通过bash 脚本来操作。
+ ```bash
+    echo "==================== STARTING WORKERS 3 ========================="
+    VACC_VISIBLE_DEVICES='0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31'  xinference-worker -H 10.24.73.23 -e http://10.24.73.25:9997 &
+    sleep 10
+
+    echo "==================== STARTING WORKERS 4========================="
+    VACC_VISIBLE_DEVICES='32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63'  xinference-worker -H 10.24.73.23 -e http://10.24.73.25:9997 &
+    sleep 10
+ ```
+Note: 可通过环境变量 `VACC_VISIBLE_DEVICES` 指定容器内可见的Die 列表，其功能与 NVIDIA 环境中的 CUDA_VISIBLE_DEVICES 相同。例如，启动容器时使用 -e VACC_VISIBLE_DEVICES=0,1,2,3。 即可使容器仅识别并使用前四个Die。为保障 vLLM 框架在多进程数据加载与通信时的稳定性，可通过 --shm-size 参数为容器分配充足的共享内存（Shared Memory）。
+
+7. 浏览器输入 `http://${xinference_supervisor}:port`即可通过webui部署模型。我们有四个worker, 所以副本选择4。填好模型路径和相关配置，耐心等待，模型就会在两台机器上启动了。每个worker 会加载自己的模型实例。
+详细可参考[Xorbits Inference 手册](https://github.com/xorbitsai/inference/blob/main/README_zh_CN.md)。
 
 强烈推荐用Webui可视化部署模型, 运行服务稳定, 精度与NVIDIA GPU基本一致。
 
