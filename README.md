@@ -38,6 +38,10 @@ https://github.com/xorbitsai/inference/pull/4486
 
 https://github.com/xorbitsai/inference/pull/4569
 
+https://github.com/xorbitsai/inference/pull/4683
+
+https://github.com/xorbitsai/inference/pull/4684
+
 https://github.com/xorbitsai/xoscar/pull/177
 
 https://github.com/xorbitsai/xoscar/pull/174
@@ -66,7 +70,7 @@ https://github.com/xorbitsai/xoscar/pull/174
 ### 4.1 基于基础镜像制作Xinference
 > [!NOTE]
 > - `vllm_vacc`基础镜像内已包含`torch/vllm`等相关依赖
-> - `xinference`目前最新版本是`2.1.0`
+> - `xinference`目前最新版本是`2.3.0`
 > - 需指定适当的`--shm-size`虚拟内存
 
 1. 根据不同架构获取vllm_vacc基础镜像
@@ -163,7 +167,7 @@ FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-26.02_arm
 
 4. 在本地启动xinference-local，假设端口为9997。
  ```bash
-   xinference-local -H 0.0.0.0 -p 9997 2>&1 | tee xinference.log & 
+  xinference-local -H 0.0.0.0 -p 9997 2>&1 | tee xinference.log & 
  ```
 Xinference启动方式详细可参考[Xinference 入门指南](https://inference.readthedocs.io/zh-cn/latest/getting_started/using_xinference.html#run-xinference-locally)。
 
