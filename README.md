@@ -38,6 +38,12 @@ https://github.com/xorbitsai/inference/pull/4486
 
 https://github.com/xorbitsai/inference/pull/4569
 
+https://github.com/xorbitsai/inference/pull/4684
+
+https://github.com/xorbitsai/inference/pull/4683
+
+https://github.com/xorbitsai/inference/pull/4678
+
 https://github.com/xorbitsai/xoscar/pull/177
 
 https://github.com/xorbitsai/xoscar/pull/174
@@ -54,7 +60,7 @@ https://github.com/xorbitsai/xoscar/pull/174
     torch-vacc: 1.3.4.1081
     vllm: 0.11.0+.cpu
     vllm-vacc: 0.11.0.1081
-    driver: 00.26.01.12 d3_3_v2_9_a3_1 eda8215 20260112
+    driver: 00.26.02.10 d3_3_v2_9_a3_1 2d380a3 20260210
     docker: 28.1.1
     ```
 
@@ -66,7 +72,7 @@ https://github.com/xorbitsai/xoscar/pull/174
 ### 4.1 基于基础镜像制作Xinference
 > [!NOTE]
 > - `vllm_vacc`基础镜像内已包含`torch/vllm`等相关依赖
-> - `xinference`目前最新版本是`2.1.0`
+> - `xinference`目前最新版本是`2.3.0`
 > - 需指定适当的`--shm-size`虚拟内存
 
 1. 根据不同架构获取vllm_vacc基础镜像
