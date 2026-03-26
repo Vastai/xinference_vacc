@@ -85,7 +85,7 @@ https://github.com/xorbitsai/xoscar/pull/174
     ```bash
     sudo docker run -it \
         --privileged=true \
-        --shm-size=256g \
+        --shm-size=512g \
         --name vllm_service \
         --ipc=host \
         --network=host \
@@ -154,7 +154,7 @@ FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-26.02_arm
   sudo docker run -it \
       --privileged=true \
       -v /models:/models \
-      --shm-size=256g \
+      --shm-size=512g \
       --name xinference_service \
       --ipc=host \
       --network=host \
