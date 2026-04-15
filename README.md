@@ -17,7 +17,7 @@ Xinference_vacc 项目是针对这个集成，帮助用户更好的使用瀚博�
 
 Xinference仓库地址：
 https://github.com/xorbitsai/inference
- 
+
 集成具体PR 如下：  
 
 https://github.com/xorbitsai/inference/pull/4382  
@@ -43,6 +43,10 @@ https://github.com/xorbitsai/inference/pull/4684
 https://github.com/xorbitsai/inference/pull/4683
 
 https://github.com/xorbitsai/inference/pull/4678
+
+https://github.com/xorbitsai/inference/pull/4747
+
+https://github.com/xorbitsai/inference/pull/4752
 
 https://github.com/xorbitsai/xoscar/pull/177
 
@@ -72,7 +76,7 @@ https://github.com/xorbitsai/xoscar/pull/174
 ### 4.1 基于基础镜像制作Xinference
 > [!NOTE]
 > - `vllm_vacc`基础镜像内已包含`torch/vllm`等相关依赖
-> - `xinference`目前最新版本是`2.3.0`
+> - `xinference`目前最新版本是`2.5.0`
 > - 需指定适当的`--shm-size`虚拟内存
 
 1. 根据不同架构获取vllm_vacc基础镜像
@@ -107,7 +111,7 @@ https://github.com/xorbitsai/xoscar/pull/174
         export XINFERENCE_RERANK_EMPTY_CACHE_COUNT=200
         export XINFERENCE_EMBEDDING_EMPTY_CACHE_COUNT=200
         export XINFERENCE_EMBEDDING_EMPTY_CACHE_TOKENS=81920  
-
+        
         # 通过轮子包安装
         pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
         pip install xinference
@@ -121,7 +125,7 @@ https://github.com/xorbitsai/xoscar/pull/174
 
 编译镜像, 默认使用x86架构。
   > - [Dockerfile](./dockerfile/Dockerfile)
-  
+
   ```bash
   cd dockerfile
   sudo docker build -t xinference_vacc:VVI-26.02 .
@@ -182,6 +186,7 @@ Note: 可通过环境变量 `VACC_VISIBLE_DEVICES` 指定容器内可见的Die �
 
 此外，Xinference中通过`enable_xavier=True`启用的VLLM多副本共享KV缓存功能，目前仅支持英伟达硬件平台。
 详细可以参考。
+测试qwen3-reranker 系列模型，xinference社区默认会加模版，可以通过XINFERENCE_QWEN3_RERANK_TEMPLATE变量来控制关
 [Xinference 关于Xavier说明](https://inference.readthedocs.io/zh-cn/latest/getting_started/using_xinference.html#run-xinference-locally)。
 
 
@@ -189,4 +194,3 @@ Note: 可通过环境变量 `VACC_VISIBLE_DEVICES` 指定容器内可见的Die �
 - `Xinference`采用[Apache License 2.0](https://inference.readthedocs.io/zh-cn/latest/getting_started/installation.html)。
 - `Xinference_vacc`遵循[Apache 2.0](LICENSE)许可证许可。
 - Additional components and integrations: Copyright © 2024-2025 vastaitech.
-
