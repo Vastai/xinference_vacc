@@ -1,5 +1,5 @@
-FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-26.02
-# FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-26.02_arm
+FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-26.04
+# FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-26.04_arm
 # 设置工作目录
 WORKDIR /test
 # 设置环境变量

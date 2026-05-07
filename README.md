@@ -60,11 +60,11 @@ https://github.com/xorbitsai/xoscar/pull/174
     os: Ubuntu-22.04.3-LTS-x86_64
     cpu: Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz
     gpu: VA16 / VA1L / VA10L
-    torch: 2.8.0+cpu
-    torch-vacc: 1.3.4.1081
-    vllm: 0.11.0+.cpu
-    vllm-vacc: 0.11.0.1081
-    driver: 00.26.02.10 d3_3_v2_9_a3_1 2d380a3 20260210
+    torch: 2.10.0+cpu
+    torch-vacc: 1.3.7.1081
+    vllm: 0.17.0+.cpu
+    vllm-vacc: 0.17.0.1081
+    driver: 00.26.05.06 d3_3_v2_9_a3_1 1fd7f1e 20260506
     docker: 28.1.1
     ```
 
@@ -76,13 +76,13 @@ https://github.com/xorbitsai/xoscar/pull/174
 ### 4.1 基于基础镜像制作Xinference
 > [!NOTE]
 > - `vllm_vacc`基础镜像内已包含`torch/vllm`等相关依赖
-> - `xinference`目前最新版本是`2.5.0`
+> - `xinference`目前最新版本是`2.7.0`
 > - 需指定适当的`--shm-size`虚拟内存
 
 1. 根据不同架构获取vllm_vacc基础镜像
     ```bash
-    sudo docker pull harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-26.02
-    sudo docker pull harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-26.02_arm
+    sudo docker pull harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-26.04
+    sudo docker pull harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-26.04_arm
     ```
 
 2. 启动容器
@@ -93,7 +93,7 @@ https://github.com/xorbitsai/xoscar/pull/174
         --name vllm_service \
         --ipc=host \
         --network=host \
-        harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-26.02 bash
+        harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-26.04 bash
     ```
 
 3. 安装Xinference
@@ -128,11 +128,11 @@ https://github.com/xorbitsai/xoscar/pull/174
 
   ```bash
   cd dockerfile
-  sudo docker build -t xinference_vacc:VVI-26.02 .
+  sudo docker build -t xinference_vacc:VVI-26.04 .
   ```
 如果使用arm架构，需要先修改Dockerfile 的基础镜像。
   ```bash
-FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-26.02_arm
+FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-26.04_arm
   ```
 
 ### 4.3 拉取完整镜像
@@ -140,8 +140,8 @@ FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-26.02_arm
 根据不同的架构，拉取完整镜像
 
   ```bash
-  sudo docker pull harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-26.02
-  sudo docker pull harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-26.02_arm
+  sudo docker pull harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-26.04
+  sudo docker pull harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-26.04_arm
   ```
 
 ## 5. 模型列表
@@ -163,7 +163,7 @@ FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-26.02_arm
       --ipc=host \
       --network=host \
       --entrypoint bash \
-      harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-26.02 
+      harbor.vastaitech.com/ai_deliver/xinference_vacc:VVI-26.04 
   ```
 3. 使用screen工具查看日志。
 
