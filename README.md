@@ -60,10 +60,10 @@ https://github.com/xorbitsai/xoscar/pull/174
     os: Ubuntu-22.04.3-LTS-x86_64
     cpu: Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz
     gpu: VA16 / VA1L / VA10L
-    torch: 2.10.0+cpu
-    torch-vacc: 1.3.7.1081
+    torch: 2.8.0+cpu
+    torch-vacc: 1.3.7.327
     vllm: 0.17.0+.cpu
-    vllm-vacc: 0.17.0.1081
+    vllm-vacc: 0.17.0.327
     driver: 00.26.05.06 d3_3_v2_9_a3_1 1fd7f1e 20260506
     docker: 28.1.1
     ```
