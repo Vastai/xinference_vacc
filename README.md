@@ -178,6 +178,9 @@ FROM harbor.vastaitech.com/ai_deliver/vllm_vacc:VVI-26.04_arm
 Xinference启动方式详细可参考[Xinference 入门指南](https://inference.readthedocs.io/zh-cn/latest/getting_started/using_xinference.html#run-xinference-locally)。
 
 Note: 可通过环境变量 `VACC_VISIBLE_DEVICES` 指定容器内可见的Die 列表，其功能与 NVIDIA 环境中的 CUDA_VISIBLE_DEVICES 相同。例如，启动容器时使用 -e VACC_VISIBLE_DEVICES=0,1,2,3。 即可使容器仅识别并使用前四个Die。为保障 vLLM 框架在多进程数据加载与通信时的稳定性，可通过 --shm-size 参数为容器分配充足的共享内存（Shared Memory）。
+如果是 qwen2 audio 7b 或者qwen2 audio 7b instruct, 需要VNNL_CONV1D_DLC=1配置上。
+详细可参考
+https://github.com/Vastai/VastModelZOO/tree/main/alm/qwen2_audio/vllm
 
 5. 浏览器输入 `http://${xinference_host}:port`即可部署模型。详细可参考[Xorbits Inference 手册](https://github.com/xorbitsai/inference/blob/main/README_zh_CN.md)  。
 
