@@ -105,7 +105,7 @@ https://github.com/xorbitsai/xoscar/pull/174
         
         # 通过轮子包安装
         pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-        pip install xinference
+        pip install xinference==2.7.0
         pip install qwen_omni_utils
         pip install qwen-vl-utils
         pip install mineru_vl_utils
